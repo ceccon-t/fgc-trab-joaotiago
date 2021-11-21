@@ -12,3 +12,6 @@ bool colidiuEsferaEsfera(glm::vec3 &posA, float radiusA, glm::vec3 &posB, float 
     return colidiu;
 }
 
+
+// if need to find center of sphere from origin of bounding box, try: vec3( x (+-) radius, y (+-) radius, z (+-) radius), I *think* some variation of this should work
+

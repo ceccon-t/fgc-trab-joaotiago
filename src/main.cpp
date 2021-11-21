@@ -341,9 +341,17 @@ int main(int argc, char* argv[])
     ComputeNormals(&bunnymodel);
     BuildTrianglesAndAddToVirtualScene(&bunnymodel);
 
-    ObjModel planemodel("../../data/plane.obj");
+    ObjModel planemodel("../../data/ground.obj");
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
+    
+    ObjModel wallModel("../../data/wall.obj");
+    ComputeNormals(&wallModel);
+    BuildTrianglesAndAddToVirtualScene(&wallModel);
+    
+    ObjModel aircraftModel("../../data/aircraft.obj");
+    ComputeNormals(&aircraftModel);
+    BuildTrianglesAndAddToVirtualScene(&aircraftModel);
 
     if ( argc > 1 )
     {
@@ -513,7 +521,7 @@ int main(int argc, char* argv[])
         float nearplane = -0.1f;  // Posição do "near plane"
         // float farplane  = -10.0f; // Posição do "far plane"
         // ALTERED
-        float farplane  = -100.0f; // Posição do "far plane"
+        float farplane  = -300.0f; // Posição do "far plane"
 
         if (g_UsePerspectiveProjection)
         {
@@ -552,8 +560,59 @@ int main(int argc, char* argv[])
         previous_time = current_time;
         new_x = previous_x + delta_time * 2;
         previous_x = new_x;
+        
+        
 
-        // // Desenhamos o modelo da esfera
+        // We create the map Boundaries
+        //Ground
+        model = Matrix_Translate(0.0f,0.0f,0.0f);
+        model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, PLANE);
+        DrawVirtualObject("ground");
+        //Ceilling
+        model = Matrix_Translate(0.0f,200.0f,0.0f) 
+        		* Matrix_Rotate_Z(M_PI);
+        model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, PLANE);
+        DrawVirtualObject("ground");
+        // Wall 1
+        model = Matrix_Translate(100.0f,100.0f,0.0f);
+       	model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, PLANE);
+        DrawVirtualObject("wall");
+        // Wall 2
+       	model = Matrix_Translate(0.0f,100.0f,-100.0f)
+       			* Matrix_Rotate_Y(M_PI_2);
+       	model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, PLANE);
+        DrawVirtualObject("wall");
+        // Wall 3
+        model = Matrix_Translate(-100.0f,100.0f,0.0f)
+       			* Matrix_Rotate_Y(M_PI);
+       	model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, PLANE);
+        DrawVirtualObject("wall");
+        // Wall 4
+        model = Matrix_Translate(-0.0f,100.0f,100.0f)
+       			* Matrix_Rotate_Y(M_PI+M_PI_2);
+       	model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, PLANE);
+        DrawVirtualObject("wall");
+        
+        // We create the Aircraft
+        model = Matrix_Translate(0.0f,10.0f,0.0f)
+        		* Matrix_Scale(5.f, 5.0f, 5.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, SPHERE);
+        DrawVirtualObject("aircraft");
+        
+         
         // model = Matrix_Translate(-1.0f,0.0f,0.0f)
         //       * Matrix_Rotate_Z(0.6f)
         //       * Matrix_Rotate_X(0.2f)

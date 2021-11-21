@@ -384,48 +384,48 @@ int main(int argc, char* argv[])
     std::srand(time(NULL));
 
     // Create a few random objects
-    // for (int i = 0; i < 20; i++) {
-    //     GameObject newObject;
-    //     newObject.id = getNextObjectId();
-    //     newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
-    //     newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-    //     newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    //     newObject.radius = 0.9f;
-    //     if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
-    //         newObject.objectName = "sphere";
-    //         newObject.type = CELL;
-    //     } else {
-    //         newObject.objectName = "sphere";
-    //         newObject.type = VIRUS;
-    //     }
-    //     liveObjects.push_back(newObject);
-    // }
+    for (int i = 0; i < 20; i++) {
+        GameObject newObject;
+        newObject.id = getNextObjectId();
+        newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
+        newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
+        newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+        newObject.radius = 0.9f;
+        if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
+            newObject.objectName = "sphere";
+            newObject.type = CELL;
+        } else {
+            newObject.objectName = "sphere";
+            newObject.type = VIRUS;
+        }
+        liveObjects.push_back(newObject);
+    }
 
     // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
     // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
     // //   e ir progressivamente deslocando uma delas ateh que parecam 'se tocar', entao raio sera
     // //   a posicao da deslocada dividido por 2. (no caso, teste com a Terra levou a pos 1.8f, logo, raio 0.9f)
-    GameObject esferaEsquerda;
-    esferaEsquerda.id = getNextObjectId();
-    esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    esferaEsquerda.objectName = "sphere";
-    esferaEsquerda.type = SPHERE;
-    esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    esferaEsquerda.radius = 0.9f;
+    // GameObject esferaEsquerda;
+    // esferaEsquerda.id = getNextObjectId();
+    // esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaEsquerda.objectName = "sphere";
+    // esferaEsquerda.type = SPHERE;
+    // esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    // esferaEsquerda.radius = 0.9f;
 
-    liveObjects.push_back(esferaEsquerda);
+    // liveObjects.push_back(esferaEsquerda);
 
-    GameObject esferaDireita;
-    esferaDireita.id = getNextObjectId();
-    esferaDireita.pos = glm::vec3(2.0f, 0.0f, 0.0f);  
-    esferaDireita.objectName = "sphere";
-    esferaDireita.type = VIRUS;
-    esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
-    esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
-    esferaDireita.radius = 0.9f;
+    // GameObject esferaDireita;
+    // esferaDireita.id = getNextObjectId();
+    // esferaDireita.pos = glm::vec3(2.0f, 0.0f, 0.0f);  
+    // esferaDireita.objectName = "sphere";
+    // esferaDireita.type = VIRUS;
+    // esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
+    // esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
+    // esferaDireita.radius = 0.9f;
 
-    liveObjects.push_back(esferaDireita);
+    // liveObjects.push_back(esferaDireita);
 
 
 

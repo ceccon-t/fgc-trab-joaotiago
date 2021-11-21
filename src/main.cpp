@@ -58,6 +58,12 @@
 #define CELL 0
 #define VIRUS 7
 
+// For game object movement
+#define MOVEMENT_STATIC 1
+#define MOVEMENT_LINEAR 2
+#define MOVEMENT_BEZIER 3
+#define TIME_MOVEMENT_SCALING_FACTOR 0.01f
+
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
 // arquivo ".obj". Veja https://en.wikipedia.org/wiki/Wavefront_.obj_file .
@@ -149,11 +155,17 @@ struct SceneObject
 struct GameObject {
     int id;     // Object id
     std::string objectName;     // Name of "scene object" to be modeled on
-    int type;
+    int type;   // One of CELL (or SPHERE), VIRUS
     glm::vec3 pos;      // Position of object inside scene space
-    glm::vec3 velocity; // movement vector
+    glm::vec3 velocity; // For linear movement, movement vector
     glm::vec3 scale;    // "Size of object" (not used yet)
-    float radius;
+    float radius;       // radius of object, used to calculate collisions
+    int movementType;   // Defines type of movement, between static, linear and bezier cubic
+    glm::vec3 bezierP1; // For movement with bezier curves, point of control 1
+    glm::vec3 bezierP2; // For movement with bezier curves, point of control 2
+    glm::vec3 bezierP3; // For movement with bezier curves, point of control 3
+    glm::vec3 bezierP4; // For movement with bezier curves, point of control 4
+    float bezierT;      // For movement with bezier cuvers, parameter 't' in equations
 };
 
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
@@ -383,23 +395,23 @@ int main(int argc, char* argv[])
     // RANDOM SEED
     std::srand(time(NULL));
 
-    // Create a few random objects
-    for (int i = 0; i < 20; i++) {
-        GameObject newObject;
-        newObject.id = getNextObjectId();
-        newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
-        newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-        newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-        newObject.radius = 0.9f;
-        if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
-            newObject.objectName = "sphere";
-            newObject.type = CELL;
-        } else {
-            newObject.objectName = "sphere";
-            newObject.type = VIRUS;
-        }
-        liveObjects.push_back(newObject);
-    }
+    // // Create a few random objects
+    // for (int i = 0; i < 20; i++) {
+    //     GameObject newObject;
+    //     newObject.id = getNextObjectId();
+    //     newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
+    //     newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
+    //     newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    //     newObject.radius = 0.9f;
+    //     if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
+    //         newObject.objectName = "sphere";
+    //         newObject.type = CELL;
+    //     } else {
+    //         newObject.objectName = "sphere";
+    //         newObject.type = VIRUS;
+    //     }
+    //     liveObjects.push_back(newObject);
+    // }
 
     // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
     // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
@@ -427,6 +439,24 @@ int main(int argc, char* argv[])
 
     // liveObjects.push_back(esferaDireita);
 
+
+    // USADO EM EXPERIMENTOS PARA MOVIMENTACAO
+    GameObject esferaUnica;
+    esferaUnica.id = getNextObjectId();
+    esferaUnica.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    esferaUnica.objectName = "sphere";
+    esferaUnica.type = SPHERE;
+    esferaUnica.velocity = glm::vec3(1.0f, 1.0f, 1.0f);
+    esferaUnica.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    esferaUnica.radius = 0.9f;
+    esferaUnica.movementType = MOVEMENT_BEZIER;
+    esferaUnica.bezierP1 = glm::vec3(0.0f, 0.0f, 0.0f);
+    esferaUnica.bezierP2 = glm::vec3(3.0f, 2.0f, 7.0f);
+    esferaUnica.bezierP3 = glm::vec3(-2.0f, -5.0f, 14.0f);
+    esferaUnica.bezierP4 = glm::vec3(1.0f, -3.0f, 20.0f);
+    esferaUnica.bezierT = 0.0f;
+
+    liveObjects.push_back(esferaUnica);
 
 
 
@@ -550,9 +580,57 @@ int main(int argc, char* argv[])
 
         // Update position of every object 
         for (GameObject &current : liveObjects) {
-            current.pos.x += current.velocity.x * 0.01f;
-            current.pos.y += current.velocity.y * 0.01f;
-            current.pos.z += current.velocity.z * 0.01f;
+            if (current.movementType == MOVEMENT_LINEAR) {
+                current.pos.x += current.velocity.x * 0.01f;
+                current.pos.y += current.velocity.y * 0.01f;
+                current.pos.z += current.velocity.z * 0.01f;
+            } else if (current.movementType == MOVEMENT_BEZIER) {
+                if (current.bezierT >= 1.0f) {
+                    current.bezierT = 0.0f;
+                }
+
+                // if (current.bezierT < 1.0f) {
+                //     current.pos.x = current.bezierP1.x;
+                //     current.pos.y = current.bezierP1.y;
+                //     current.pos.z = current.bezierP1.z;
+                // }
+                // else if (current.bezierT < 2.0f) {
+                //     current.pos.x = current.bezierP2.x;
+                //     current.pos.y = current.bezierP2.y;
+                //     current.pos.z = current.bezierP2.z;
+                // }
+                // else if (current.bezierT < 3.0f) {
+                //     current.pos.x = current.bezierP3.x;
+                //     current.pos.y = current.bezierP3.y;
+                //     current.pos.z = current.bezierP3.z;
+                // }
+                // else if (current.bezierT < 4.0f) {
+                //     current.pos.x = current.bezierP4.x;
+                //     current.pos.y = current.bezierP4.y;
+                //     current.pos.z = current.bezierP4.z;
+                // }
+
+                float b03 = pow((1.0f - current.bezierT), 3);
+                float b13 = 3*current.bezierT*pow((1-current.bezierT), 2);
+                float b23 = 3*pow(current.bezierT, 2)*(1-current.bezierT);
+                float b33 = pow(current.bezierT, 3);
+
+                current.pos.x = b03*(current.bezierP1.x) + b13*(current.bezierP2.x) + b23*(current.bezierP3.x) +b33*(current.bezierP4.x);
+                current.pos.y = b03*(current.bezierP1.y) + b13*(current.bezierP2.y) + b23*(current.bezierP3.y) +b33*(current.bezierP4.y);
+                current.pos.z = b03*(current.bezierP1.z) + b13*(current.bezierP2.z) + b23*(current.bezierP3.z) +b33*(current.bezierP4.z);
+
+                // float totalDistance = glm::distance(current.bezierP1, current.bezierP2)
+                //                         + glm::distance(current.bezierP2, current.bezierP3)
+                //                         + glm::distance(current.bezierP3, current.bezierP4);
+                // float step = totalDistance / 10000;
+                // g_Score = totalDistance;
+                // current.bezierT += step;
+
+                // current.bezierT += 0.001f;
+
+                current.bezierT += delta_time * TIME_MOVEMENT_SCALING_FACTOR;
+
+            }
         }
 
         // Check for collisions

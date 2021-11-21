@@ -49,6 +49,7 @@
 // Headers locais, definidos na pasta "include/"
 #include "utils.h"
 #include "matrices.h"
+#include "collisions.h"
 
 // Game object types
 #define SPHERE 0
@@ -228,18 +229,6 @@ int getNextObjectId();
 
 
 // Collision functions (move them later to separate file)
-bool colidiuEsferaEsfera(glm::vec3 &posA, float radiusA, glm::vec3 &posB, float radiusB) {
-    bool colidiu = false;
-
-    float dist = glm::distance(posA, posB);
-
-    if (dist < (radiusA + radiusB)) {
-        colidiu = true;
-    }
-
-    return colidiu;
-}
-
 bool typesEliminate(int typeA, int typeB) {
     bool eliminate = false;
 

@@ -151,7 +151,7 @@ struct GameObject {
     glm::vec3 pos;      // Position of object inside scene space
     glm::vec3 velocity; // movement vector
     glm::vec3 scale;    // "Size of object" (not used yet)
-    int radius;
+    float radius;
 };
 
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
@@ -222,6 +222,7 @@ GLuint g_NumLoadedTextures = 0;
 // New helper functions
 float generateRandomSmallFloat();
 void TextRendering_ShowScore(GLFWwindow* window, int score);
+
 
 int main(int argc, char* argv[])
 {

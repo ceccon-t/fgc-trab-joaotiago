@@ -151,6 +151,7 @@ struct GameObject {
     glm::vec3 pos;      // Position of object inside scene space
     glm::vec3 velocity; // movement vector
     glm::vec3 scale;    // "Size of object" (not used yet)
+    int radius;
 };
 
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
@@ -369,6 +370,7 @@ int main(int argc, char* argv[])
         newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
         newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
         newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+        newObject.radius = 0.9f;
         if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
             newObject.objectName = "sphere";
             newObject.type = CELL;
@@ -378,6 +380,27 @@ int main(int argc, char* argv[])
         }
         liveObjects.push_back(newObject);
     }
+
+    // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
+    // GameObject esferaEsquerda;
+    // esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaEsquerda.objectName = "sphere";
+    // esferaEsquerda.type = SPHERE;
+    // esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    // esferaEsquerda.radius = 0.9f;
+
+    // liveObjects.push_back(esferaEsquerda);
+
+    // GameObject esferaDireita;
+    // esferaDireita.pos = glm::vec3(1.8f, 0.0f, 0.0f);
+    // esferaDireita.objectName = "sphere";
+    // esferaDireita.type = SPHERE;
+    // esferaDireita.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
+    // esferaDireita.radius = 0.9f;
+
+    // liveObjects.push_back(esferaDireita);
 
 
 

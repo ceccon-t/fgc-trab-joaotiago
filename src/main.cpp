@@ -55,7 +55,10 @@
 #define SPHERE 0
 #define BUNNY  1
 #define PLANE  2
-#define CELL 0
+#define AIRCRAFT 3
+#define WALL 4
+#define GROUND 5
+#define CELL 6
 #define VIRUS 7
 
 // For game object movement
@@ -329,8 +332,10 @@ int main(int argc, char* argv[])
     LoadShadersFromFiles();
 
     // Carregamos duas imagens para serem utilizadas como textura
-    LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
-    LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); // TextureImage1
+    LoadTextureImage("../../data/covid.jpg");      // TextureImage0
+    LoadTextureImage("../../data/ground.jpg"); // TextureImage1
+    LoadTextureImage("../../data/aircraft.jpg"); // TextureImage2
+    LoadTextureImage("../../data/cell.jpg"); // TextureImage3
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -352,6 +357,14 @@ int main(int argc, char* argv[])
     ObjModel aircraftModel("../../data/aircraft.obj");
     ComputeNormals(&aircraftModel);
     BuildTrianglesAndAddToVirtualScene(&aircraftModel);
+    
+    ObjModel coronamodel("../../data/corona.obj");
+    ComputeNormals(&coronamodel);
+    BuildTrianglesAndAddToVirtualScene(&coronamodel);
+    
+    ObjModel cellmodel("../../data/leukocyte.obj");
+    ComputeNormals(&cellmodel);
+    BuildTrianglesAndAddToVirtualScene(&cellmodel);
 
     if ( argc > 1 )
     {
@@ -609,8 +622,24 @@ int main(int argc, char* argv[])
         model = Matrix_Translate(0.0f,10.0f,0.0f)
         		* Matrix_Scale(5.f, 5.0f, 5.0f);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, SPHERE);
+        glUniform1i(object_id_uniform, AIRCRAFT);
         DrawVirtualObject("aircraft");
+        // We create the virus example
+        model = Matrix_Translate(0.0f,10.0f,30.0f)
+        		* Matrix_Scale(0.5f, 0.5f, 0.5f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, VIRUS);
+        DrawVirtualObject("corona");
+        
+        // We create the cell example
+        model = Matrix_Translate(0.0f,10.0f,-27.0f)
+        		* Matrix_Scale(10.f, 10.0f, 10.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, CELL);
+        DrawVirtualObject("cell");
+        
+        
+        
         
          
         // model = Matrix_Translate(-1.0f,0.0f,0.0f)
@@ -943,6 +972,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(program_id, "TextureImage0"), 0);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage1"), 1);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage2"), 2);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage3"), 3);
     glUseProgram(0);
 }
 

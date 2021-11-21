@@ -22,6 +22,11 @@ uniform mat4 projection;
 #define SPHERE 0
 #define BUNNY  1
 #define PLANE  2
+#define AIRCRAFT 3
+#define WALL 4
+#define GROUND 5
+#define CELL 6
+#define VIRUS 7
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -32,6 +37,7 @@ uniform vec4 bbox_max;
 uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
 uniform sampler2D TextureImage2;
+uniform sampler2D TextureImage3;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec3 color;
@@ -91,6 +97,29 @@ void main()
 
         U = (theta + M_PI) / (2 * M_PI);
         V = (phi + M_PI_2) / M_PI;
+   		vec3 Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
+        float lambert = max(0,dot(n,l));
+        color = Kd0 * lambert;
+        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+    }
+    else if ( object_id == VIRUS )
+    {
+
+        U = texcoords.x;
+        V = texcoords.y;
+        vec3 Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
+        float lambert = max(0,dot(n,l));
+        color = Kd0 * lambert;
+        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+    }
+    else if ( object_id == CELL )
+    {
+        U = texcoords.x;
+        V = texcoords.y;
+        vec3 Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
+        float lambert = max(0,dot(n,l));
+        color = Kd0 * lambert;
+        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
     }
     else if ( object_id == BUNNY )
     {
@@ -115,6 +144,10 @@ void main()
         // Page 6, slides Aula 22 - Laboratorio 5
         U = (position_model.x - minx) / (maxx - minx);
         V = (position_model.y - miny) / (maxy - miny);
+        vec3 Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
+        float lambert = max(0,dot(n,l));
+        color = Kd0 * lambert;
+        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
 
     }
     else if ( object_id == PLANE )
@@ -122,20 +155,37 @@ void main()
         // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
+        vec3 Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
+        float lambert = max(0,dot(n,l));
+        color = Kd0 * lambert;
+        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+        
     }
+    else if ( object_id == AIRCRAFT )
+    {
+        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
+        U = texcoords.x;
+        V = texcoords.y;
+        vec3 Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
+        float lambert = max(0,dot(n,l));
+        color = Kd0 * lambert;
+        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+        
+    }
+	
+	/*
+		// Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+		vec3 Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
+		vec3 Kd1 = texture(TextureImage1, vec2(U,V)).rgb;
 
-    // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-    vec3 Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
-    vec3 Kd1 = texture(TextureImage1, vec2(U,V)).rgb;
+		// Equação de Iluminação
+		float lambert = max(0,dot(n,l));
 
-    // Equação de Iluminação
-    float lambert = max(0,dot(n,l));
+		color = Kd0 * (lambert + 0.01)
+		            + Kd1 * (max(0 , 0.2 - lambert));
 
-    color = Kd0 * (lambert + 0.01)
-                + Kd1 * (max(0 , 0.2 - lambert));
-
-    // Cor final com correção gamma, considerando monitor sRGB.
-    // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
-    color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+		// Cor final com correção gamma, considerando monitor sRGB.
+		color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+	*/
 } 
 

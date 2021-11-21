@@ -396,22 +396,23 @@ int main(int argc, char* argv[])
     std::srand(time(NULL));
 
     // // Create a few random objects
-    // for (int i = 0; i < 20; i++) {
-    //     GameObject newObject;
-    //     newObject.id = getNextObjectId();
-    //     newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
-    //     newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-    //     newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    //     newObject.radius = 0.9f;
-    //     if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
-    //         newObject.objectName = "sphere";
-    //         newObject.type = CELL;
-    //     } else {
-    //         newObject.objectName = "sphere";
-    //         newObject.type = VIRUS;
-    //     }
-    //     liveObjects.push_back(newObject);
-    // }
+    for (int i = 0; i < 20; i++) {
+        GameObject newObject;
+        newObject.id = getNextObjectId();
+        newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
+        newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
+        newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+        newObject.radius = 0.9f;
+        newObject.movementType = MOVEMENT_LINEAR;
+        if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
+            newObject.objectName = "sphere";
+            newObject.type = CELL;
+        } else {
+            newObject.objectName = "sphere";
+            newObject.type = VIRUS;
+        }
+        liveObjects.push_back(newObject);
+    }
 
     // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
     // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
@@ -425,6 +426,7 @@ int main(int argc, char* argv[])
     // esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     // esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
     // esferaEsquerda.radius = 0.9f;
+    // esferaEsquerda.movementType = MOVEMENT_LINEAR;
 
     // liveObjects.push_back(esferaEsquerda);
 
@@ -436,27 +438,28 @@ int main(int argc, char* argv[])
     // esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
     // esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
     // esferaDireita.radius = 0.9f;
+    // esferaDireita.movementType = MOVEMENT_LINEAR;
 
     // liveObjects.push_back(esferaDireita);
 
 
     // USADO EM EXPERIMENTOS PARA MOVIMENTACAO
-    GameObject esferaUnica;
-    esferaUnica.id = getNextObjectId();
-    esferaUnica.pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    esferaUnica.objectName = "sphere";
-    esferaUnica.type = SPHERE;
-    esferaUnica.velocity = glm::vec3(1.0f, 1.0f, 1.0f);
-    esferaUnica.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    esferaUnica.radius = 0.9f;
-    esferaUnica.movementType = MOVEMENT_BEZIER;
-    esferaUnica.bezierP1 = glm::vec3(0.0f, 0.0f, 0.0f);
-    esferaUnica.bezierP2 = glm::vec3(3.0f, 2.0f, 7.0f);
-    esferaUnica.bezierP3 = glm::vec3(-2.0f, -5.0f, 14.0f);
-    esferaUnica.bezierP4 = glm::vec3(1.0f, -3.0f, 20.0f);
-    esferaUnica.bezierT = 0.0f;
+    // GameObject esferaUnica;
+    // esferaUnica.id = getNextObjectId();
+    // esferaUnica.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaUnica.objectName = "sphere";
+    // esferaUnica.type = SPHERE;
+    // esferaUnica.velocity = glm::vec3(1.0f, 1.0f, 1.0f);
+    // esferaUnica.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    // esferaUnica.radius = 0.9f;
+    // esferaUnica.movementType = MOVEMENT_BEZIER;
+    // esferaUnica.bezierP1 = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaUnica.bezierP2 = glm::vec3(3.0f, 2.0f, 7.0f);
+    // esferaUnica.bezierP3 = glm::vec3(-2.0f, -5.0f, 14.0f);
+    // esferaUnica.bezierP4 = glm::vec3(1.0f, -3.0f, 20.0f);
+    // esferaUnica.bezierT = 0.0f;
 
-    liveObjects.push_back(esferaUnica);
+    // liveObjects.push_back(esferaUnica);
 
 
 
@@ -577,6 +580,7 @@ int main(int argc, char* argv[])
         // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         // glUniform1i(object_id_uniform, SPHERE);
         // DrawVirtualObject(evilEarth.objectName.c_str());
+
 
         // Update position of every object 
         for (GameObject &current : liveObjects) {

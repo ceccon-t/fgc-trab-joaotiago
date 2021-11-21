@@ -150,7 +150,7 @@ struct GameObject {
     int type;
     glm::vec3 pos;      // Position of object inside scene space
     glm::vec3 velocity; // movement vector
-    // glm::vec3 scale;    // "Size of object" (not used yet)
+    glm::vec3 scale;    // "Size of object" (not used yet)
 };
 
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
@@ -368,6 +368,7 @@ int main(int argc, char* argv[])
         GameObject newObject;
         newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
         newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
+        newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
         if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
             newObject.objectName = "sphere";
             newObject.type = CELL;
@@ -510,7 +511,7 @@ int main(int argc, char* argv[])
             // current.pos.x += 0.02f;
 
             model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
-                  * Matrix_Scale(1.0f, 1.0f, 1.0f)
+                  * Matrix_Scale(current.scale.x, current.scale.y, current.scale.z)
                   * Matrix_Rotate_Z(0.6f)
                   * Matrix_Rotate_X(0.2f)
                   * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);

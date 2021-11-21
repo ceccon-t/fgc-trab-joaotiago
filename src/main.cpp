@@ -382,6 +382,9 @@ int main(int argc, char* argv[])
     }
 
     // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
+    // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
+    // //   e ir progressivamente deslocando uma delas ateh que parecam 'se tocar', entao raio sera
+    // //   a posicao da deslocada dividido por 2. (no caso, teste com a Terra levou a pos 1.8f, logo, raio 0.9f)
     // GameObject esferaEsquerda;
     // esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
     // esferaEsquerda.objectName = "sphere";
@@ -393,7 +396,7 @@ int main(int argc, char* argv[])
     // liveObjects.push_back(esferaEsquerda);
 
     // GameObject esferaDireita;
-    // esferaDireita.pos = glm::vec3(1.8f, 0.0f, 0.0f);
+    // esferaDireita.pos = glm::vec3(1.8f, 0.0f, 0.0f);  
     // esferaDireita.objectName = "sphere";
     // esferaDireita.type = SPHERE;
     // esferaDireita.velocity = glm::vec3(0.0f, 0.0f, 0.0f);

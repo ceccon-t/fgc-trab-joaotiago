@@ -150,7 +150,7 @@ struct GameObject {
     int type;
     glm::vec3 pos;      // Position of object inside scene space
     glm::vec3 velocity; // movement vector
-    // glm::vec3 scale;    // "Size of object"
+    // glm::vec3 scale;    // "Size of object" (not used yet)
 };
 
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
@@ -197,8 +197,12 @@ float g_TorsoPositionY = 0.0f;
 // Variável que controla o tipo de projeção utilizada: perspectiva ou ortográfica.
 bool g_UsePerspectiveProjection = true;
 
+// Game-related variables
+int g_Score = 0;
+bool debugMode = false;
+
 // Variável que controla se o texto informativo será mostrado na tela.
-bool g_ShowInfoText = true;
+bool g_ShowInfoText = false;
 
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint vertex_shader_id;
@@ -216,6 +220,7 @@ GLuint g_NumLoadedTextures = 0;
 
 // New helper functions
 float generateRandomSmallFloat();
+void TextRendering_ShowScore(GLFWwindow* window, int score);
 
 int main(int argc, char* argv[])
 {
@@ -544,6 +549,9 @@ int main(int argc, char* argv[])
         // Imprimimos na tela informação sobre o número de quadros renderizados
         // por segundo (frames per second).
         TextRendering_ShowFramesPerSecond(window);
+
+        // Imprimimos na tela o score do jogo
+        TextRendering_ShowScore(window, g_Score);
 
         // O framebuffer onde OpenGL executa as operações de renderização não
         // é o mesmo que está sendo mostrado para o usuário, caso contrário
@@ -1321,6 +1329,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         fprintf(stdout,"Shaders recarregados!\n");
         fflush(stdout);
     }
+
+    // DEBUG apenas: tecla B aumenta score
+    if (key == GLFW_KEY_B && action == GLFW_PRESS)
+    {
+        if (debugMode) g_Score += 500;
+    }
 }
 
 // Definimos o callback para impressão de erros da GLFW no terminal
@@ -1632,4 +1646,17 @@ void PrintObjModelInfo(ObjModel* model)
 float generateRandomSmallFloat() {
     float n = ((float) std::rand()) / (float) RAND_MAX;
     return n - 0.5f;
+}
+
+void TextRendering_ShowScore(GLFWwindow* window, int score)
+{
+
+    float lineheight = TextRendering_LineHeight(window);
+    float charwidth = TextRendering_CharWidth(window);
+
+    std::string strScore = std::to_string(score);
+    std::string output = "Score: " + strScore;
+
+    // TextRendering_PrintString(window, output, 1.0f-25*charwidth, -1.0f+2*lineheight/10, 2.0f);
+    TextRendering_PrintString(window, output, 1.0f-25*charwidth, -1.0f+2*lineheight/10, 2.0f);
 }

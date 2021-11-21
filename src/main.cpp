@@ -146,6 +146,7 @@ struct SceneObject
 
 // Structure to store game objects, with infos like position, type, so on
 struct GameObject {
+    int id;     // Object id
     std::string objectName;     // Name of "scene object" to be modeled on
     int type;
     glm::vec3 pos;      // Position of object inside scene space
@@ -201,6 +202,7 @@ bool g_UsePerspectiveProjection = true;
 // Game-related variables
 int g_Score = 0;
 bool debugMode = false;
+int g_nextObjectId = 0;
 
 // Variável que controla se o texto informativo será mostrado na tela.
 bool g_ShowInfoText = false;
@@ -222,6 +224,33 @@ GLuint g_NumLoadedTextures = 0;
 // New helper functions
 float generateRandomSmallFloat();
 void TextRendering_ShowScore(GLFWwindow* window, int score);
+int getNextObjectId();
+
+
+// Collision functions (move them later to separate file)
+bool colidiuEsferaEsfera(glm::vec3 &posA, float radiusA, glm::vec3 &posB, float radiusB) {
+    bool colidiu = false;
+
+    float dist = glm::distance(posA, posB);
+
+    if (dist < (radiusA + radiusB)) {
+        colidiu = true;
+    }
+
+    return colidiu;
+}
+
+bool typesEliminate(int typeA, int typeB) {
+    bool eliminate = false;
+
+    if (typeA == CELL && typeB == VIRUS) {
+        eliminate = true;
+    } else if (typeA == VIRUS && typeB == CELL) {
+        eliminate = true;
+    }
+
+    return eliminate;
+}
 
 
 int main(int argc, char* argv[])
@@ -356,7 +385,7 @@ int main(int argc, char* argv[])
     // evilRabbit.velocity = glm::vec3(0.0f, 0.1f, 0.1f);
 
     // ALTERED
-    std::list<GameObject> liveObjects;
+    std::vector<GameObject> liveObjects;
     // liveObjects.push_back(evilEarth);
     // liveObjects.push_back(evilRabbit);
     // float te = ((float) std::rand()) / (float) RAND_MAX;
@@ -366,45 +395,49 @@ int main(int argc, char* argv[])
     std::srand(time(NULL));
 
     // Create a few random objects
-    for (int i = 0; i < 20; i++) {
-        GameObject newObject;
-        newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
-        newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-        newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-        newObject.radius = 0.9f;
-        if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
-            newObject.objectName = "sphere";
-            newObject.type = CELL;
-        } else {
-            newObject.objectName = "sphere";
-            newObject.type = VIRUS;
-        }
-        liveObjects.push_back(newObject);
-    }
+    // for (int i = 0; i < 20; i++) {
+    //     GameObject newObject;
+    //     newObject.id = getNextObjectId();
+    //     newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
+    //     newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
+    //     newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    //     newObject.radius = 0.9f;
+    //     if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
+    //         newObject.objectName = "sphere";
+    //         newObject.type = CELL;
+    //     } else {
+    //         newObject.objectName = "sphere";
+    //         newObject.type = VIRUS;
+    //     }
+    //     liveObjects.push_back(newObject);
+    // }
 
     // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
     // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
     // //   e ir progressivamente deslocando uma delas ateh que parecam 'se tocar', entao raio sera
     // //   a posicao da deslocada dividido por 2. (no caso, teste com a Terra levou a pos 1.8f, logo, raio 0.9f)
-    // GameObject esferaEsquerda;
-    // esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    // esferaEsquerda.objectName = "sphere";
-    // esferaEsquerda.type = SPHERE;
-    // esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    // esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    // esferaEsquerda.radius = 0.9f;
+    GameObject esferaEsquerda;
+    esferaEsquerda.id = getNextObjectId();
+    esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    esferaEsquerda.objectName = "sphere";
+    esferaEsquerda.type = SPHERE;
+    esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    esferaEsquerda.radius = 0.9f;
 
-    // liveObjects.push_back(esferaEsquerda);
+    liveObjects.push_back(esferaEsquerda);
 
-    // GameObject esferaDireita;
-    // esferaDireita.pos = glm::vec3(1.8f, 0.0f, 0.0f);  
-    // esferaDireita.objectName = "sphere";
-    // esferaDireita.type = SPHERE;
-    // esferaDireita.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    // esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
-    // esferaDireita.radius = 0.9f;
+    GameObject esferaDireita;
+    esferaDireita.id = getNextObjectId();
+    esferaDireita.pos = glm::vec3(2.0f, 0.0f, 0.0f);  
+    esferaDireita.objectName = "sphere";
+    esferaDireita.type = VIRUS;
+    esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
+    esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
+    esferaDireita.radius = 0.9f;
 
-    // liveObjects.push_back(esferaDireita);
+    liveObjects.push_back(esferaDireita);
+
 
 
 
@@ -533,6 +566,40 @@ int main(int argc, char* argv[])
             current.pos.z += current.velocity.z * 0.01f;
         }
 
+        // Check for collisions
+        std::vector<int> objectsToRemove;
+        std::vector<int> idsMarkedToBeRemoved;
+        bool marked;
+        for (size_t i = 0; i < liveObjects.size(); i++) {
+            marked = false;
+            GameObject curI = liveObjects[i];
+            if ( (std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curI.id)) < 1 ) { // Jesus Christ I HATE C++
+                for (size_t j = i+1; j < liveObjects.size(); j++) {
+                    GameObject curJ = liveObjects[j];
+                    if ((std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curJ.id)) < 1) {  // Seriously, I REALLY hate C++
+                        glm::vec3 a = glm::vec3(curI.pos.x, curI.pos.y, curI.pos.z);
+                        float aR = curI.radius;
+                        glm::vec3 b = glm::vec3(curJ.pos.x, curJ.pos.y, curJ.pos.z);
+                        float bR = curJ.radius;
+                        if (colidiuEsferaEsfera(a, aR, b, bR) && typesEliminate(curI.type, curJ.type)) {
+                            idsMarkedToBeRemoved.push_back(curI.id);
+                            idsMarkedToBeRemoved.push_back(curJ.id);
+                            objectsToRemove.push_back(i);
+                            objectsToRemove.push_back(j);
+                            g_Score -= 50;
+                            marked = true;
+                        }
+                    }
+                    if (marked) break;
+                }
+            }
+        }
+        int removeds = 0;
+        for (int toRem : objectsToRemove) {
+            int index = toRem-removeds;
+            liveObjects.erase(liveObjects.begin() + index);
+        }
+
         // We draw live objects
         for (GameObject &current : liveObjects) {
             // current.pos.x += 0.02f;
@@ -546,6 +613,8 @@ int main(int argc, char* argv[])
             glUniform1i(object_id_uniform, current.type);
             DrawVirtualObject(current.objectName.c_str());
         }
+
+        // int col = colidiuEsferaEsfera(window, liveObjects[0].pos, liveObjects[0].radius, liveObjects[1].pos, liveObjects[1].radius);
 
         // // Desenhamos o modelo do coelho
         // model = Matrix_Translate(1.0f,0.0f,0.0f)
@@ -1688,3 +1757,9 @@ void TextRendering_ShowScore(GLFWwindow* window, int score)
     // TextRendering_PrintString(window, output, 1.0f-25*charwidth, -1.0f+2*lineheight/10, 2.0f);
     TextRendering_PrintString(window, output, 1.0f-25*charwidth, -1.0f+2*lineheight/10, 2.0f);
 }
+
+int getNextObjectId() {
+    g_nextObjectId += 1;
+    return g_nextObjectId;
+}
+

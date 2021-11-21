@@ -216,6 +216,7 @@ bool g_UsePerspectiveProjection = true;
 int g_Score = 0;
 bool debugMode = false;
 int g_nextObjectId = 0;
+bool g_Paused = false;
 
 // Variável que controla se o texto informativo será mostrado na tela.
 bool g_ShowInfoText = false;
@@ -582,94 +583,101 @@ int main(int argc, char* argv[])
         // DrawVirtualObject(evilEarth.objectName.c_str());
 
 
-        // Update position of every object 
-        for (GameObject &current : liveObjects) {
-            if (current.movementType == MOVEMENT_LINEAR) {
-                current.pos.x += current.velocity.x * 0.01f;
-                current.pos.y += current.velocity.y * 0.01f;
-                current.pos.z += current.velocity.z * 0.01f;
-            } else if (current.movementType == MOVEMENT_BEZIER) {
-                if (current.bezierT >= 1.0f) {
-                    current.bezierT = 0.0f;
-                }
+        // MOVEMENT AND GAME LOGIC START
+        if (!g_Paused) {
 
-                // if (current.bezierT < 1.0f) {
-                //     current.pos.x = current.bezierP1.x;
-                //     current.pos.y = current.bezierP1.y;
-                //     current.pos.z = current.bezierP1.z;
-                // }
-                // else if (current.bezierT < 2.0f) {
-                //     current.pos.x = current.bezierP2.x;
-                //     current.pos.y = current.bezierP2.y;
-                //     current.pos.z = current.bezierP2.z;
-                // }
-                // else if (current.bezierT < 3.0f) {
-                //     current.pos.x = current.bezierP3.x;
-                //     current.pos.y = current.bezierP3.y;
-                //     current.pos.z = current.bezierP3.z;
-                // }
-                // else if (current.bezierT < 4.0f) {
-                //     current.pos.x = current.bezierP4.x;
-                //     current.pos.y = current.bezierP4.y;
-                //     current.pos.z = current.bezierP4.z;
-                // }
-
-                float b03 = pow((1.0f - current.bezierT), 3);
-                float b13 = 3*current.bezierT*pow((1-current.bezierT), 2);
-                float b23 = 3*pow(current.bezierT, 2)*(1-current.bezierT);
-                float b33 = pow(current.bezierT, 3);
-
-                current.pos.x = b03*(current.bezierP1.x) + b13*(current.bezierP2.x) + b23*(current.bezierP3.x) +b33*(current.bezierP4.x);
-                current.pos.y = b03*(current.bezierP1.y) + b13*(current.bezierP2.y) + b23*(current.bezierP3.y) +b33*(current.bezierP4.y);
-                current.pos.z = b03*(current.bezierP1.z) + b13*(current.bezierP2.z) + b23*(current.bezierP3.z) +b33*(current.bezierP4.z);
-
-                // float totalDistance = glm::distance(current.bezierP1, current.bezierP2)
-                //                         + glm::distance(current.bezierP2, current.bezierP3)
-                //                         + glm::distance(current.bezierP3, current.bezierP4);
-                // float step = totalDistance / 10000;
-                // g_Score = totalDistance;
-                // current.bezierT += step;
-
-                // current.bezierT += 0.001f;
-
-                current.bezierT += delta_time * TIME_MOVEMENT_SCALING_FACTOR;
-
-            }
-        }
-
-        // Check for collisions
-        std::vector<int> objectsToRemove;
-        std::vector<int> idsMarkedToBeRemoved;
-        bool marked;
-        for (size_t i = 0; i < liveObjects.size(); i++) {
-            marked = false;
-            GameObject curI = liveObjects[i];
-            if ( (std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curI.id)) < 1 ) { // Jesus Christ I HATE C++
-                for (size_t j = i+1; j < liveObjects.size(); j++) {
-                    GameObject curJ = liveObjects[j];
-                    if ((std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curJ.id)) < 1) {  // Seriously, I REALLY hate C++
-                        glm::vec3 a = glm::vec3(curI.pos.x, curI.pos.y, curI.pos.z);
-                        float aR = curI.radius;
-                        glm::vec3 b = glm::vec3(curJ.pos.x, curJ.pos.y, curJ.pos.z);
-                        float bR = curJ.radius;
-                        if (colidiuEsferaEsfera(a, aR, b, bR) && typesEliminate(curI.type, curJ.type)) {
-                            idsMarkedToBeRemoved.push_back(curI.id);
-                            idsMarkedToBeRemoved.push_back(curJ.id);
-                            objectsToRemove.push_back(i);
-                            objectsToRemove.push_back(j);
-                            g_Score -= 50;
-                            marked = true;
-                        }
+            // Update position of every object 
+            for (GameObject &current : liveObjects) {
+                if (current.movementType == MOVEMENT_LINEAR) {
+                    current.pos.x += current.velocity.x * 0.01f;
+                    current.pos.y += current.velocity.y * 0.01f;
+                    current.pos.z += current.velocity.z * 0.01f;
+                } else if (current.movementType == MOVEMENT_BEZIER) {
+                    if (current.bezierT >= 1.0f) {
+                        current.bezierT = 0.0f;
                     }
-                    if (marked) break;
+
+                    // if (current.bezierT < 1.0f) {
+                    //     current.pos.x = current.bezierP1.x;
+                    //     current.pos.y = current.bezierP1.y;
+                    //     current.pos.z = current.bezierP1.z;
+                    // }
+                    // else if (current.bezierT < 2.0f) {
+                    //     current.pos.x = current.bezierP2.x;
+                    //     current.pos.y = current.bezierP2.y;
+                    //     current.pos.z = current.bezierP2.z;
+                    // }
+                    // else if (current.bezierT < 3.0f) {
+                    //     current.pos.x = current.bezierP3.x;
+                    //     current.pos.y = current.bezierP3.y;
+                    //     current.pos.z = current.bezierP3.z;
+                    // }
+                    // else if (current.bezierT < 4.0f) {
+                    //     current.pos.x = current.bezierP4.x;
+                    //     current.pos.y = current.bezierP4.y;
+                    //     current.pos.z = current.bezierP4.z;
+                    // }
+
+                    float b03 = pow((1.0f - current.bezierT), 3);
+                    float b13 = 3*current.bezierT*pow((1-current.bezierT), 2);
+                    float b23 = 3*pow(current.bezierT, 2)*(1-current.bezierT);
+                    float b33 = pow(current.bezierT, 3);
+
+                    current.pos.x = b03*(current.bezierP1.x) + b13*(current.bezierP2.x) + b23*(current.bezierP3.x) +b33*(current.bezierP4.x);
+                    current.pos.y = b03*(current.bezierP1.y) + b13*(current.bezierP2.y) + b23*(current.bezierP3.y) +b33*(current.bezierP4.y);
+                    current.pos.z = b03*(current.bezierP1.z) + b13*(current.bezierP2.z) + b23*(current.bezierP3.z) +b33*(current.bezierP4.z);
+
+                    // float totalDistance = glm::distance(current.bezierP1, current.bezierP2)
+                    //                         + glm::distance(current.bezierP2, current.bezierP3)
+                    //                         + glm::distance(current.bezierP3, current.bezierP4);
+                    // float step = totalDistance / 10000;
+                    // g_Score = totalDistance;
+                    // current.bezierT += step;
+
+                    // current.bezierT += 0.001f;
+
+                    current.bezierT += delta_time * TIME_MOVEMENT_SCALING_FACTOR;
+
                 }
             }
+
+            // Check for collisions
+            std::vector<int> objectsToRemove;
+            std::vector<int> idsMarkedToBeRemoved;
+            bool marked;
+            for (size_t i = 0; i < liveObjects.size(); i++) {
+                marked = false;
+                GameObject curI = liveObjects[i];
+                if ( (std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curI.id)) < 1 ) { // Jesus Christ I HATE C++
+                    for (size_t j = i+1; j < liveObjects.size(); j++) {
+                        GameObject curJ = liveObjects[j];
+                        if ((std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curJ.id)) < 1) {  // Seriously, I REALLY hate C++
+                            glm::vec3 a = glm::vec3(curI.pos.x, curI.pos.y, curI.pos.z);
+                            float aR = curI.radius;
+                            glm::vec3 b = glm::vec3(curJ.pos.x, curJ.pos.y, curJ.pos.z);
+                            float bR = curJ.radius;
+                            if (colidiuEsferaEsfera(a, aR, b, bR) && typesEliminate(curI.type, curJ.type)) {
+                                idsMarkedToBeRemoved.push_back(curI.id);
+                                idsMarkedToBeRemoved.push_back(curJ.id);
+                                objectsToRemove.push_back(i);
+                                objectsToRemove.push_back(j);
+                                g_Score -= 50;
+                                marked = true;
+                            }
+                        }
+                        if (marked) break;
+                    }
+                }
+            }
+            int removeds = 0;
+            for (int toRem : objectsToRemove) {
+                int index = toRem-removeds;
+                liveObjects.erase(liveObjects.begin() + index);
+            }
+
         }
-        int removeds = 0;
-        for (int toRem : objectsToRemove) {
-            int index = toRem-removeds;
-            liveObjects.erase(liveObjects.begin() + index);
-        }
+        // MOVEMENT AND GAME LOGIC END
+
 
         // We draw live objects
         for (GameObject &current : liveObjects) {
@@ -1472,16 +1480,23 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_TorsoPositionY = 0.0f;
     }
 
-    // Se o usuário apertar a tecla P, utilizamos projeção perspectiva.
+    // For now, we have no use for changing perspective, so we'll comment this out and reuse the P key
+    // // Se o usuário apertar a tecla P, utilizamos projeção perspectiva.
+    // if (key == GLFW_KEY_P && action == GLFW_PRESS)
+    // {
+    //     g_UsePerspectiveProjection = true;
+    // }
+
+    // // Se o usuário apertar a tecla O, utilizamos projeção ortográfica.
+    // if (key == GLFW_KEY_O && action == GLFW_PRESS)
+    // {
+    //     g_UsePerspectiveProjection = false;
+    // }
+
+    // Reusing the P key for pausing the game
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
     {
-        g_UsePerspectiveProjection = true;
-    }
-
-    // Se o usuário apertar a tecla O, utilizamos projeção ortográfica.
-    if (key == GLFW_KEY_O && action == GLFW_PRESS)
-    {
-        g_UsePerspectiveProjection = false;
+        g_Paused = !g_Paused;
     }
 
     // Se o usuário apertar a tecla H, fazemos um "toggle" do texto informativo mostrado na tela.

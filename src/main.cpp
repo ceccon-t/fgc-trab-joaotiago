@@ -216,8 +216,10 @@ float g_CameraTheta_lookAt = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
 float g_CameraPhi_lookAt = 0.0f;   // Ângulo em relação ao eixo Y
 float g_CameraDistance_lookAt = 3.5f; // Distância da câmera para a origem
 // Variables for free cam
-float g_CameraTheta_freeCam = 3.926826f;
-float g_CameraPhi_freeCam = -0.523797f;
+// float g_CameraTheta_freeCam = 3.926826f;
+// float g_CameraPhi_freeCam = -0.523797f;
+float g_CameraTheta_freeCam = 0.0f;
+float g_CameraPhi_freeCam = 0.0f;
 float g_CameraDistance_freeCam = 2.5f;
 // Variables for cam type
 int g_CamType = CAMERA_TYPE_FREECAM;
@@ -436,7 +438,7 @@ int main(int argc, char* argv[])
     // Player
     Player player;
     player.objectName = "aircraft";
-    player.pos = glm::vec3(0.0f, 5.0f, 0.0f);
+    player.pos = glm::vec3(5.0f, 5.0f, 5.0f);
     player.scale = glm::vec3(1.0f, 1.0f, 1.0f);
     player.size = 1;
 
@@ -517,7 +519,7 @@ int main(int argc, char* argv[])
     // liveObjects.push_back(esferaUnica);
 
     // Variables to control camera movement
-    glm::vec4 camera_position_c_freeCam  = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "c", centro da câmera
+    glm::vec4 camera_position_c_freeCam  = glm::vec4(9.0f,9.0f,-9.0f,1.0f); // Ponto "c", centro da câmera
 
 
     // Ficamos em loop, renderizando, até que o usuário feche a janela
@@ -835,7 +837,11 @@ int main(int argc, char* argv[])
 
         // We draw the Player
         model = Matrix_Translate(player.pos.x,player.pos.y,player.pos.z)
-        		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z);
+                // * Matrix_Rotate_Z(z_freeCam)
+                * Matrix_Rotate_X(-g_CameraPhi_freeCam)
+                * Matrix_Rotate_Y(M_PI + g_CameraTheta_freeCam)
+        		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
+                ;
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(object_id_uniform, AIRCRAFT);
         DrawVirtualObject(player.objectName.c_str());

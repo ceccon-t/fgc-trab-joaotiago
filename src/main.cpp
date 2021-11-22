@@ -171,6 +171,14 @@ struct GameObject {
     float bezierT;      // For movement with bezier cuvers, parameter 't' in equations
 };
 
+// Structure to store information related to the player object in scene
+struct Player {
+    std::string objectName;
+    glm::vec3 pos;
+    glm::vec3 scale;
+    int size;
+};
+
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
 
 // A cena virtual é uma lista de objetos nomeados, guardados em um dicionário
@@ -408,6 +416,14 @@ int main(int argc, char* argv[])
     // evilRabbit.velocity = glm::vec3(0.0f, 0.1f, 0.1f);
 
     // ALTERED
+    // Player
+    Player player;
+    player.objectName = "aircraft";
+    player.pos = glm::vec3(0.0f, 5.0f, 0.0f);
+    player.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    player.size = 1;
+
+    // ALTERED
     std::vector<GameObject> liveObjects;
     // liveObjects.push_back(evilEarth);
     // liveObjects.push_back(evilRabbit);
@@ -618,25 +634,25 @@ int main(int argc, char* argv[])
         glUniform1i(object_id_uniform, PLANE);
         DrawVirtualObject("wall");
         
-        // We create the Aircraft
-        model = Matrix_Translate(0.0f,10.0f,0.0f)
-        		* Matrix_Scale(5.f, 5.0f, 5.0f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, AIRCRAFT);
-        DrawVirtualObject("aircraft");
-        // We create the virus example
-        model = Matrix_Translate(0.0f,10.0f,30.0f)
-        		* Matrix_Scale(0.5f, 0.5f, 0.5f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, VIRUS);
-        DrawVirtualObject("corona");
+        // // We create the Aircraft
+        // model = Matrix_Translate(0.0f,10.0f,0.0f)
+        // 		* Matrix_Scale(5.f, 5.0f, 5.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, AIRCRAFT);
+        // DrawVirtualObject("aircraft");
+        // // We create the virus example
+        // model = Matrix_Translate(0.0f,10.0f,30.0f)
+        // 		* Matrix_Scale(0.5f, 0.5f, 0.5f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, VIRUS);
+        // DrawVirtualObject("corona");
         
-        // We create the cell example
-        model = Matrix_Translate(0.0f,10.0f,-27.0f)
-        		* Matrix_Scale(10.f, 10.0f, 10.0f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, CELL);
-        DrawVirtualObject("cell");
+        // // We create the cell example
+        // model = Matrix_Translate(0.0f,10.0f,-27.0f)
+        // 		* Matrix_Scale(10.f, 10.0f, 10.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, CELL);
+        // DrawVirtualObject("cell");
         
         
         
@@ -766,6 +782,12 @@ int main(int argc, char* argv[])
         }
         // MOVEMENT AND GAME LOGIC END
 
+        // We draw the Player
+        model = Matrix_Translate(player.pos.x,player.pos.y,player.pos.z)
+        		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, AIRCRAFT);
+        DrawVirtualObject(player.objectName.c_str());
 
         // We draw live objects
         for (GameObject &current : liveObjects) {

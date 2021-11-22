@@ -435,10 +435,13 @@ int main(int argc, char* argv[])
     // evilRabbit.velocity = glm::vec3(0.0f, 0.1f, 0.1f);
 
     // ALTERED
+    // Variables to control camera movement
+    glm::vec4 camera_position_c_freeCam  = glm::vec4(9.0f,9.0f,-9.0f,1.0f); // Ponto "c", centro da câmera
+
     // Player
     Player player;
     player.objectName = "aircraft";
-    player.pos = glm::vec3(5.0f, 5.0f, 5.0f);
+    player.pos = glm::vec3(9.0f, 8.0f, -10.5f);
     player.scale = glm::vec3(1.0f, 1.0f, 1.0f);
     player.size = 1;
 
@@ -518,8 +521,6 @@ int main(int argc, char* argv[])
 
     // liveObjects.push_back(esferaUnica);
 
-    // Variables to control camera movement
-    glm::vec4 camera_position_c_freeCam  = glm::vec4(9.0f,9.0f,-9.0f,1.0f); // Ponto "c", centro da câmera
 
 
     // Ficamos em loop, renderizando, até que o usuário feche a janela
@@ -867,9 +868,9 @@ int main(int argc, char* argv[])
         // We draw the Player
         model = Matrix_Translate(player.pos.x,player.pos.y,player.pos.z)
                 // * Matrix_Rotate_Z(z_freeCam)
+        		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
                 * Matrix_Rotate_X(-g_CameraPhi_freeCam)
                 * Matrix_Rotate_Y(M_PI + g_CameraTheta_freeCam)
-        		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
                 ;
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(object_id_uniform, AIRCRAFT);

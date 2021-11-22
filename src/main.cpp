@@ -584,11 +584,40 @@ int main(int argc, char* argv[])
         glm::vec4 camera_u_vector = (up_cross_w) / norm(up_cross_w);
 
         // Apply movement
-        if (g_CamType == CAMERA_TYPE_FREECAM) {
-            if (g_KeyWPressed) camera_position_c_freeCam  += (-camera_w_vector) * speed_freeCam * delta_time; 
-            if (g_KeyAPressed) camera_position_c_freeCam  += (-camera_u_vector) * speed_freeCam * delta_time; 
-            if (g_KeySPressed) camera_position_c_freeCam  += camera_w_vector * speed_freeCam * delta_time; 
-            if (g_KeyDPressed) camera_position_c_freeCam  += camera_u_vector * speed_freeCam * delta_time; 
+        if (g_CamType == CAMERA_TYPE_FREECAM && !g_Paused) {
+            glm::vec4 displacement;
+            if (g_KeyWPressed) {
+                displacement = (-camera_w_vector) * speed_freeCam * delta_time;
+                // camera_position_c_freeCam  += (-camera_w_vector) * speed_freeCam * delta_time;
+                camera_position_c_freeCam  += (-camera_w_vector) * speed_freeCam * delta_time;
+                player.pos.x += displacement.x;
+                player.pos.y += displacement.y;
+                player.pos.z += displacement.z;
+            } 
+            if (g_KeyAPressed) {
+                displacement = (-camera_u_vector) * speed_freeCam * delta_time;
+                // camera_position_c_freeCam  += (-camera_u_vector) * speed_freeCam * delta_time; 
+                camera_position_c_freeCam  += displacement; 
+                player.pos.x += displacement.x;
+                player.pos.y += displacement.y;
+                player.pos.z += displacement.z;
+            } 
+            if (g_KeySPressed) {
+                displacement = camera_w_vector * speed_freeCam * delta_time;
+                // camera_position_c_freeCam  += camera_w_vector * speed_freeCam * delta_time; 
+                camera_position_c_freeCam  += displacement; 
+                player.pos.x += displacement.x;
+                player.pos.y += displacement.y;
+                player.pos.z += displacement.z;
+            } 
+            if (g_KeyDPressed) {
+                displacement = camera_u_vector * speed_freeCam * delta_time; 
+                // camera_position_c_freeCam  += camera_u_vector * speed_freeCam * delta_time; 
+                camera_position_c_freeCam  += displacement;
+                player.pos.x += displacement.x;
+                player.pos.y += displacement.y;
+                player.pos.z += displacement.z;
+            } 
         }
 
 

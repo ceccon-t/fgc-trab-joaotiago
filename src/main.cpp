@@ -421,16 +421,17 @@ int main(int argc, char* argv[])
     for (int i = 0; i < 20; i++) {
         GameObject newObject;
         newObject.id = getNextObjectId();
-        newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
+        newObject.pos = glm::vec3(generateRandomSmallFloat()*10, 50.0f+generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
         newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
         newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
         newObject.radius = 0.9f;
         newObject.movementType = MOVEMENT_LINEAR;
         if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
-            newObject.objectName = "sphere";
+            newObject.objectName = "cell";
             newObject.type = CELL;
         } else {
-            newObject.objectName = "sphere";
+        	newObject.scale = glm::vec3(0.05f, 0.05f, 0.05f);
+            newObject.objectName = "corona";
             newObject.type = VIRUS;
         }
         liveObjects.push_back(newObject);
@@ -618,9 +619,9 @@ int main(int argc, char* argv[])
         glUniform1i(object_id_uniform, PLANE);
         DrawVirtualObject("wall");
         
-        // We create the Aircraft
+        // We create the Aircraft example
         model = Matrix_Translate(0.0f,10.0f,0.0f)
-        		* Matrix_Scale(5.f, 5.0f, 5.0f);
+        		* Matrix_Scale(1.f, 1.0f, 1.0f);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(object_id_uniform, AIRCRAFT);
         DrawVirtualObject("aircraft");

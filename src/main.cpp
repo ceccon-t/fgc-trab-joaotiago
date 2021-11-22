@@ -1732,6 +1732,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         }
     }
 
+    // V changes view
+    if (key == GLFW_KEY_V && action == GLFW_PRESS)
+    {
+        g_Paused = true;
+        g_CamType = (g_CamType == CAMERA_TYPE_LOOKAT) ? CAMERA_TYPE_FREECAM : CAMERA_TYPE_LOOKAT;
+    }
 }
 
 // Definimos o callback para impressão de erros da GLFW no terminal

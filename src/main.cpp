@@ -541,6 +541,13 @@ int main(int argc, char* argv[])
         // os shaders de vértice e fragmentos).
         glUseProgram(program_id);
 
+        // ALTERED 
+        float current_time = (float)glfwGetTime();
+        float delta_time = current_time - previous_time;
+        previous_time = current_time;
+        new_x = previous_x + delta_time * 2;
+        previous_x = new_x;
+        
         // Computamos a posição da câmera utilizando coordenadas esféricas.  As
         // variáveis g_CameraDistance_lookAt, g_CameraPhi_lookAt, e g_CameraTheta_lookAt são
         // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
@@ -575,10 +582,10 @@ int main(int argc, char* argv[])
 
         // Apply movement
         if (g_CamType == CAMERA_TYPE_FREECAM) {
-            if (g_KeyWPressed) camera_position_c_freeCam  += (-camera_w_vector) * 0.1f; // TODO:  add delta time factor here
-            if (g_KeyAPressed) camera_position_c_freeCam  += (-camera_u_vector) * 0.1f; // TODO:  add delta time factor here
-            if (g_KeySPressed) camera_position_c_freeCam  += camera_w_vector * 0.1f; // TODO:  add delta time factor here
-            if (g_KeyDPressed) camera_position_c_freeCam  += camera_u_vector * 0.1f; // TODO:  add delta time factor here
+            if (g_KeyWPressed) camera_position_c_freeCam  += (-camera_w_vector) * 1.0f * delta_time; // TODO:  add delta time factor here
+            if (g_KeyAPressed) camera_position_c_freeCam  += (-camera_u_vector) * 1.0f * delta_time; // TODO:  add delta time factor here
+            if (g_KeySPressed) camera_position_c_freeCam  += camera_w_vector * 1.0f * delta_time; // TODO:  add delta time factor here
+            if (g_KeyDPressed) camera_position_c_freeCam  += camera_u_vector * 1.0f * delta_time; // TODO:  add delta time factor here
         }
 
 
@@ -633,13 +640,6 @@ int main(int argc, char* argv[])
 
         // MOVED SPHERE, BUNNY, PLANE CONSTANTS FROM HERE TO TOP OF FILE
 
-        // ALTERED 
-        float current_time = (float)glfwGetTime();
-        float delta_time = current_time - previous_time;
-        previous_time = current_time;
-        new_x = previous_x + delta_time * 2;
-        previous_x = new_x;
-        
         
 
         // We create the map Boundaries

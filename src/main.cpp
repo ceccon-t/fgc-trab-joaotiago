@@ -547,6 +547,7 @@ int main(int argc, char* argv[])
         previous_time = current_time;
         new_x = previous_x + delta_time * 2;
         previous_x = new_x;
+        float speed_freeCam = 1.0f;
         
         // Computamos a posição da câmera utilizando coordenadas esféricas.  As
         // variáveis g_CameraDistance_lookAt, g_CameraPhi_lookAt, e g_CameraTheta_lookAt são
@@ -582,10 +583,10 @@ int main(int argc, char* argv[])
 
         // Apply movement
         if (g_CamType == CAMERA_TYPE_FREECAM) {
-            if (g_KeyWPressed) camera_position_c_freeCam  += (-camera_w_vector) * 1.0f * delta_time; // TODO:  add delta time factor here
-            if (g_KeyAPressed) camera_position_c_freeCam  += (-camera_u_vector) * 1.0f * delta_time; // TODO:  add delta time factor here
-            if (g_KeySPressed) camera_position_c_freeCam  += camera_w_vector * 1.0f * delta_time; // TODO:  add delta time factor here
-            if (g_KeyDPressed) camera_position_c_freeCam  += camera_u_vector * 1.0f * delta_time; // TODO:  add delta time factor here
+            if (g_KeyWPressed) camera_position_c_freeCam  += (-camera_w_vector) * speed_freeCam * delta_time; 
+            if (g_KeyAPressed) camera_position_c_freeCam  += (-camera_u_vector) * speed_freeCam * delta_time; 
+            if (g_KeySPressed) camera_position_c_freeCam  += camera_w_vector * speed_freeCam * delta_time; 
+            if (g_KeyDPressed) camera_position_c_freeCam  += camera_u_vector * speed_freeCam * delta_time; 
         }
 
 

@@ -451,7 +451,7 @@ int main(int argc, char* argv[])
     std::srand(time(NULL));
 
     // // Create a few random objects
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 5; i++) {
         GameObject newObject;
         newObject.id = getNextObjectId();
         newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);

@@ -64,8 +64,11 @@ void main()
     // normais de cada vértice.
     vec4 n = normalize(normal);
 
+    // Ponto que define a posição da fonte de luz, no centro da "caixa" formada pelos planos
+    vec4 light_pos = vec4(50.0, 100.0, 50.0, 1.0);
+
     // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
-    vec4 l = normalize(vec4(1.0,1.0,0.0,0.0));
+    vec4 l = normalize(light_pos - p);
 
     // Vetor que define o sentido da câmera em relação ao ponto atual.
     vec4 v = normalize(camera_position - p);

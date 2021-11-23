@@ -72,6 +72,10 @@
 #define CAMERA_TYPE_LOOKAT 1
 #define CAMERA_TYPE_FREECAM 2
 
+// Proportions and etc.
+#define SCALE_CORONA 0.05f
+#define SCALE_CELL 0.7f
+
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
 // arquivo ".obj". Veja https://en.wikipedia.org/wiki/Wavefront_.obj_file .
@@ -469,51 +473,51 @@ int main(int argc, char* argv[])
     std::srand(time(NULL));
 
     // // Create a few random objects
-    for (int i = 0; i < 5; i++) {
-        GameObject newObject;
-        newObject.id = getNextObjectId();
-        newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
-        newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-        newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-        newObject.radius = 0.9f;
-        newObject.movementType = MOVEMENT_LINEAR;
-        if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
-            newObject.objectName = "sphere";
-            newObject.type = CELL;
-        } else {
-            newObject.objectName = "sphere";
-            newObject.type = VIRUS;
-        }
-        liveObjects.push_back(newObject);
-    }
+    // for (int i = 0; i < 5; i++) {
+    //     GameObject newObject;
+    //     newObject.id = getNextObjectId();
+    //     newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
+    //     newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
+    //     newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    //     newObject.radius = 0.9f;
+    //     newObject.movementType = MOVEMENT_LINEAR;
+    //     if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
+    //         newObject.objectName = "sphere";
+    //         newObject.type = CELL;
+    //     } else {
+    //         newObject.objectName = "sphere";
+    //         newObject.type = VIRUS;
+    //     }
+    //     liveObjects.push_back(newObject);
+    // }
 
     // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
     // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
     // //   e ir progressivamente deslocando uma delas ateh que parecam 'se tocar', entao raio sera
     // //   a posicao da deslocada dividido por 2. (no caso, teste com a Terra levou a pos 1.8f, logo, raio 0.9f)
-    GameObject esferaEsquerda;
-    esferaEsquerda.id = getNextObjectId();
-    esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    esferaEsquerda.objectName = "sphere";
-    esferaEsquerda.type = SPHERE;
-    esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    esferaEsquerda.radius = 0.9f;
-    esferaEsquerda.movementType = MOVEMENT_LINEAR;
+    // GameObject esferaEsquerda;
+    // esferaEsquerda.id = getNextObjectId();
+    // esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaEsquerda.objectName = "sphere";
+    // esferaEsquerda.type = SPHERE;
+    // esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    // esferaEsquerda.radius = 0.9f;
+    // esferaEsquerda.movementType = MOVEMENT_LINEAR;
 
-    liveObjects.push_back(esferaEsquerda);
+    // liveObjects.push_back(esferaEsquerda);
 
-    GameObject esferaDireita;
-    esferaDireita.id = getNextObjectId();
-    esferaDireita.pos = glm::vec3(2.0f, 0.0f, 0.0f);  
-    esferaDireita.objectName = "sphere";
-    esferaDireita.type = VIRUS;
-    esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
-    esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
-    esferaDireita.radius = 0.9f;
-    esferaDireita.movementType = MOVEMENT_LINEAR;
+    // GameObject esferaDireita;
+    // esferaDireita.id = getNextObjectId();
+    // esferaDireita.pos = glm::vec3(2.0f, 0.0f, 0.0f);  
+    // esferaDireita.objectName = "sphere";
+    // esferaDireita.type = VIRUS;
+    // esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
+    // esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
+    // esferaDireita.radius = 0.9f;
+    // esferaDireita.movementType = MOVEMENT_LINEAR;
 
-    liveObjects.push_back(esferaDireita);
+    // liveObjects.push_back(esferaDireita);
 
 
     // USADO EM EXPERIMENTOS PARA MOVIMENTACAO
@@ -534,6 +538,28 @@ int main(int argc, char* argv[])
 
     // liveObjects.push_back(esferaUnica);
 
+
+    // For testing bullets
+    for (int i = 0; i < 6; i++) {
+        GameObject targetPractice;
+        targetPractice.id = getNextObjectId();
+        targetPractice.pos = glm::vec3(5.0f + 3*i, 5.0f + 3*i, 5.0f  + 3*i);
+        targetPractice.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+        targetPractice.radius = 0.9f;
+        targetPractice.movementType = MOVEMENT_STATIC;
+
+        if (i % 2 == 0) {
+            targetPractice.objectName = "corona";
+            targetPractice.type = VIRUS;
+            targetPractice.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
+        } else {
+            targetPractice.objectName = "cell";
+            targetPractice.type = CELL;
+            targetPractice.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+        }
+
+        liveObjects.push_back(targetPractice);
+    }
 
 
     // Ficamos em loop, renderizando, até que o usuário feche a janela
@@ -563,7 +589,7 @@ int main(int argc, char* argv[])
         previous_time = current_time;
         new_x = previous_x + delta_time * 2;
         previous_x = new_x;
-        float speed_freeCam = 1.0f;
+        float speed_freeCam = 15.0f;
         
         // Computamos a posição da câmera utilizando coordenadas esféricas.  As
         // variáveis g_CameraDistance_lookAt, g_CameraPhi_lookAt, e g_CameraTheta_lookAt são
@@ -730,25 +756,25 @@ int main(int argc, char* argv[])
         glUniform1i(object_id_uniform, PLANE);
         DrawVirtualObject("wall");
         
-        // We create the Aircraft
-        model = Matrix_Translate(0.0f,10.0f,0.0f)
-        		* Matrix_Scale(5.f, 5.0f, 5.0f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, AIRCRAFT);
-        DrawVirtualObject("aircraft");
-        // We create the virus example
-        model = Matrix_Translate(0.0f,10.0f,30.0f)
-        		* Matrix_Scale(0.5f, 0.5f, 0.5f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, VIRUS);
-        DrawVirtualObject("corona");
+        // // We create the Aircraft
+        // model = Matrix_Translate(0.0f,10.0f,0.0f)
+        // 		* Matrix_Scale(5.f, 5.0f, 5.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, AIRCRAFT);
+        // DrawVirtualObject("aircraft");
+        // // We create the virus example
+        // model = Matrix_Translate(0.0f,10.0f,30.0f)
+        // 		* Matrix_Scale(0.5f, 0.5f, 0.5f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, VIRUS);
+        // DrawVirtualObject("corona");
         
-        // We create the cell example
-        model = Matrix_Translate(0.0f,10.0f,-27.0f)
-        		* Matrix_Scale(10.f, 10.0f, 10.0f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, CELL);
-        DrawVirtualObject("cell");
+        // // We create the cell example
+        // model = Matrix_Translate(0.0f,10.0f,-27.0f)
+        // 		* Matrix_Scale(10.f, 10.0f, 10.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, CELL);
+        // DrawVirtualObject("cell");
         
         
         

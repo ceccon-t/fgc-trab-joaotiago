@@ -31,6 +31,7 @@
 #include <algorithm>
 // ALTERED
 #include <list>
+#include <set>
 
 // Headers das bibliotecas OpenGL
 #include <glad/glad.h>   // Criação de contexto OpenGL 3.3
@@ -66,6 +67,15 @@
 #define MOVEMENT_LINEAR 2
 #define MOVEMENT_BEZIER 3
 #define TIME_MOVEMENT_SCALING_FACTOR 0.01f
+#define BULLET_LIFETIME 50
+
+// For camera
+#define CAMERA_TYPE_LOOKAT 1
+#define CAMERA_TYPE_FREECAM 2
+
+// Proportions and etc.
+#define SCALE_CORONA 0.05f
+#define SCALE_CELL 0.7f
 
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
@@ -171,6 +181,22 @@ struct GameObject {
     float bezierT;      // For movement with bezier cuvers, parameter 't' in equations
 };
 
+// Structure to store information related to the player object in scene
+struct Player {
+    std::string objectName;
+    glm::vec3 pos;
+    glm::vec3 scale;
+    int size;
+};
+
+// Structure to store information about player bullets
+struct Bullet {
+    std::string objectName;
+    glm::vec3 pos;
+    glm::vec3 direction;
+    int t;
+};
+
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
 
 // A cena virtual é uma lista de objetos nomeados, guardados em um dicionário
@@ -200,9 +226,24 @@ bool g_MiddleMouseButtonPressed = false; // Análogo para botão do meio do mous
 // usuário através do mouse (veja função CursorPosCallback()). A posição
 // efetiva da câmera é calculada dentro da função main(), dentro do loop de
 // renderização.
-float g_CameraTheta = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
-float g_CameraPhi = 0.0f;   // Ângulo em relação ao eixo Y
-float g_CameraDistance = 3.5f; // Distância da câmera para a origem
+float g_CameraTheta_lookAt = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
+float g_CameraPhi_lookAt = 0.0f;   // Ângulo em relação ao eixo Y
+float g_CameraDistance_lookAt = 3.5f; // Distância da câmera para a origem
+// Variables for free cam
+// float g_CameraTheta_freeCam = 3.926826f;
+// float g_CameraPhi_freeCam = -0.523797f;
+float g_CameraTheta_freeCam = 0.0f;
+float g_CameraPhi_freeCam = 0.0f;
+float g_CameraDistance_freeCam = 2.5f;
+// Variables for cam type
+int g_CamType = CAMERA_TYPE_FREECAM;
+
+// Variables to control player movement
+bool g_KeyWPressed = false;
+bool g_KeyAPressed = false;
+bool g_KeySPressed = false;
+bool g_KeyDPressed = false;
+
 
 // Variáveis que controlam rotação do antebraço
 float g_ForearmAngleZ = 0.0f;
@@ -220,6 +261,7 @@ int g_Score = 0;
 bool debugMode = false;
 int g_nextObjectId = 0;
 bool g_Paused = false;
+bool g_ShouldFire = false;
 
 // Variável que controla se o texto informativo será mostrado na tela.
 bool g_ShowInfoText = false;
@@ -408,6 +450,20 @@ int main(int argc, char* argv[])
     // evilRabbit.velocity = glm::vec3(0.0f, 0.1f, 0.1f);
 
     // ALTERED
+    // Variables to control camera movement
+    glm::vec4 camera_position_c_freeCam  = glm::vec4(9.0f,9.0f,-9.0f,1.0f); // Ponto "c", centro da câmera
+
+    // Player
+    Player player;
+    player.objectName = "aircraft";
+    player.pos = glm::vec3(9.0f, 8.0f, -10.5f);
+    player.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    player.size = 1;
+
+    // Bullets
+    std::vector<Bullet> liveBullets;
+
+    // ALTERED
     std::vector<GameObject> liveObjects;
     // liveObjects.push_back(evilEarth);
     // liveObjects.push_back(evilRabbit);
@@ -418,23 +474,23 @@ int main(int argc, char* argv[])
     std::srand(time(NULL));
 
     // // Create a few random objects
-    for (int i = 0; i < 20; i++) {
-        GameObject newObject;
-        newObject.id = getNextObjectId();
-        newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
-        newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-        newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-        newObject.radius = 0.9f;
-        newObject.movementType = MOVEMENT_LINEAR;
-        if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
-            newObject.objectName = "sphere";
-            newObject.type = CELL;
-        } else {
-            newObject.objectName = "sphere";
-            newObject.type = VIRUS;
-        }
-        liveObjects.push_back(newObject);
-    }
+    // for (int i = 0; i < 5; i++) {
+    //     GameObject newObject;
+    //     newObject.id = getNextObjectId();
+    //     newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
+    //     newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
+    //     newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    //     newObject.radius = 0.9f;
+    //     newObject.movementType = MOVEMENT_LINEAR;
+    //     if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
+    //         newObject.objectName = "sphere";
+    //         newObject.type = CELL;
+    //     } else {
+    //         newObject.objectName = "sphere";
+    //         newObject.type = VIRUS;
+    //     }
+    //     liveObjects.push_back(newObject);
+    // }
 
     // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
     // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
@@ -484,6 +540,28 @@ int main(int argc, char* argv[])
     // liveObjects.push_back(esferaUnica);
 
 
+    // For testing bullets
+    // for (int i = 0; i < 6; i++) {
+    //     GameObject targetPractice;
+    //     targetPractice.id = getNextObjectId();
+    //     targetPractice.pos = glm::vec3(5.0f + 3*i, 5.0f + 3*i, 5.0f  + 3*i);
+    //     targetPractice.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    //     targetPractice.radius = 0.9f;
+    //     targetPractice.movementType = MOVEMENT_STATIC;
+
+    //     if (i % 2 == 0) {
+    //         targetPractice.objectName = "corona";
+    //         targetPractice.type = VIRUS;
+    //         targetPractice.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
+    //     } else {
+    //         targetPractice.objectName = "cell";
+    //         targetPractice.type = CELL;
+    //         targetPractice.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+    //     }
+
+    //     liveObjects.push_back(targetPractice);
+    // }
+
 
     // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
@@ -506,25 +584,93 @@ int main(int argc, char* argv[])
         // os shaders de vértice e fragmentos).
         glUseProgram(program_id);
 
+        // ALTERED 
+        float current_time = (float)glfwGetTime();
+        float delta_time = current_time - previous_time;
+        previous_time = current_time;
+        new_x = previous_x + delta_time * 2;
+        previous_x = new_x;
+        float speed_freeCam = 15.0f;
+        
         // Computamos a posição da câmera utilizando coordenadas esféricas.  As
-        // variáveis g_CameraDistance, g_CameraPhi, e g_CameraTheta são
+        // variáveis g_CameraDistance_lookAt, g_CameraPhi_lookAt, e g_CameraTheta_lookAt são
         // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
         // e ScrollCallback().
-        float r = g_CameraDistance;
-        float y = r*sin(g_CameraPhi);
-        float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
-        float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
+        // Look-At Cam
+        float r_lookAt = g_CameraDistance_lookAt;
+        float y_lookAt = r_lookAt*sin(g_CameraPhi_lookAt);
+        float z_lookAt = r_lookAt*cos(g_CameraPhi_lookAt)*cos(g_CameraTheta_lookAt);
+        float x_lookAt = r_lookAt*cos(g_CameraPhi_lookAt)*sin(g_CameraTheta_lookAt);
+
+        // Free Cam
+        float r_freeCam = g_CameraDistance_freeCam;
+        float x_freeCam = r_freeCam*cos(g_CameraPhi_freeCam)*sin(g_CameraTheta_freeCam);
+        float y_freeCam = r_freeCam*sin(g_CameraPhi_freeCam);
+        float z_freeCam = r_freeCam*cos(g_CameraPhi_freeCam)*cos(g_CameraTheta_freeCam);
 
         // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
         // Veja slides 195-227 e 229-234 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da câmera
-        glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
-        glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a câmera está virada
-        glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
+        // ALTERED
+        glm::vec4 camera_position_c_lookAt  = glm::vec4(x_lookAt,y_lookAt,z_lookAt,1.0f); // Ponto "c", centro da câmera
+        // glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
+        glm::vec4 camera_lookat_l    = glm::vec4(player.pos.x,player.pos.y,player.pos.z,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
+        glm::vec4 camera_view_vector_lookAt = camera_lookat_l - camera_position_c_lookAt; // Vetor "view", sentido para onde a câmera está virada
+        glm::vec4 camera_up_vector_lookAt   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
+
+        // Free cam
+        glm::vec4 camera_view_vector_freeCam = glm::vec4(x_freeCam, y_freeCam, z_freeCam, 0.0f);
+        glm::vec4 camera_up_vector_freeCam = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+        glm::vec4 camera_w_vector = (-camera_view_vector_freeCam) / norm(camera_view_vector_freeCam);
+        glm::vec4 up_cross_w = crossproduct(camera_up_vector_freeCam, camera_w_vector);
+        glm::vec4 camera_u_vector = (up_cross_w) / norm(up_cross_w);
+
+        // Apply movement
+        if (g_CamType == CAMERA_TYPE_FREECAM && !g_Paused) {
+            glm::vec4 displacement;
+            if (g_KeyWPressed) {
+                displacement = (-camera_w_vector) * speed_freeCam * delta_time;
+                // camera_position_c_freeCam  += (-camera_w_vector) * speed_freeCam * delta_time;
+                camera_position_c_freeCam  += (-camera_w_vector) * speed_freeCam * delta_time;
+                player.pos.x += displacement.x;
+                player.pos.y += displacement.y;
+                player.pos.z += displacement.z;
+            } 
+            if (g_KeyAPressed) {
+                displacement = (-camera_u_vector) * speed_freeCam * delta_time;
+                // camera_position_c_freeCam  += (-camera_u_vector) * speed_freeCam * delta_time; 
+                camera_position_c_freeCam  += displacement; 
+                player.pos.x += displacement.x;
+                player.pos.y += displacement.y;
+                player.pos.z += displacement.z;
+            } 
+            if (g_KeySPressed) {
+                displacement = camera_w_vector * speed_freeCam * delta_time;
+                // camera_position_c_freeCam  += camera_w_vector * speed_freeCam * delta_time; 
+                camera_position_c_freeCam  += displacement; 
+                player.pos.x += displacement.x;
+                player.pos.y += displacement.y;
+                player.pos.z += displacement.z;
+            } 
+            if (g_KeyDPressed) {
+                displacement = camera_u_vector * speed_freeCam * delta_time; 
+                // camera_position_c_freeCam  += camera_u_vector * speed_freeCam * delta_time; 
+                camera_position_c_freeCam  += displacement;
+                player.pos.x += displacement.x;
+                player.pos.y += displacement.y;
+                player.pos.z += displacement.z;
+            } 
+        }
+
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slides 2-14, 184-190 e 236-242 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        glm::mat4 view = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
+        glm::mat4 view = Matrix_Camera_View(camera_position_c_lookAt, camera_view_vector_lookAt, camera_up_vector_lookAt);
+        // ALTERED
+        if (g_CamType == CAMERA_TYPE_LOOKAT) {
+            view = Matrix_Camera_View(camera_position_c_lookAt, camera_view_vector_lookAt, camera_up_vector_lookAt);
+        } else {
+            view = Matrix_Camera_View(camera_position_c_freeCam, camera_view_vector_freeCam, camera_up_vector_freeCam);
+        }
 
         // Agora computamos a matriz de Projeção.
         glm::mat4 projection;
@@ -549,8 +695,8 @@ int main(int argc, char* argv[])
             // Para definição dos valores l, r, b, t ("left", "right", "bottom", "top"),
             // PARA PROJEÇÃO ORTOGRÁFICA veja slides 219-224 do documento Aula_09_Projecoes.pdf.
             // Para simular um "zoom" ortográfico, computamos o valor de "t"
-            // utilizando a variável g_CameraDistance.
-            float t = 1.5f*g_CameraDistance/2.5f;
+            // utilizando a variável g_CameraDistance_lookAt.
+            float t = 1.5f*g_CameraDistance_lookAt/2.5f;
             float b = -t;
             float r = t*g_ScreenRatio;
             float l = -r;
@@ -567,13 +713,6 @@ int main(int argc, char* argv[])
 
         // MOVED SPHERE, BUNNY, PLANE CONSTANTS FROM HERE TO TOP OF FILE
 
-        // ALTERED 
-        float current_time = (float)glfwGetTime();
-        float delta_time = current_time - previous_time;
-        previous_time = current_time;
-        new_x = previous_x + delta_time * 2;
-        previous_x = new_x;
-        
         
 
         // We create the map Boundaries
@@ -618,7 +757,7 @@ int main(int argc, char* argv[])
         glUniform1i(object_id_uniform, PLANE);
         DrawVirtualObject("wall");
         
-        // We create the Aircraft
+        // // We create the Aircraft
         model = Matrix_Translate(0.0f,10.0f,0.0f)
         		* Matrix_Scale(5.f, 5.0f, 5.0f);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
@@ -673,6 +812,61 @@ int main(int argc, char* argv[])
 
         // MOVEMENT AND GAME LOGIC START
         if (!g_Paused) {
+
+            // If player has shot, we create a new bullet
+            if (g_ShouldFire) {
+                Bullet newBullet;
+                newBullet.objectName = "sphere";
+                newBullet.direction.x = -(camera_w_vector.x);
+                newBullet.direction.y = -(camera_w_vector.y);
+                newBullet.direction.z = -(camera_w_vector.z);
+                newBullet.pos.x = camera_position_c_freeCam.x + 5*newBullet.direction.x;
+                newBullet.pos.y = camera_position_c_freeCam.y + 5*newBullet.direction.y;
+                newBullet.pos.z = camera_position_c_freeCam.z + 5*newBullet.direction.z;
+                newBullet.t = 1;
+                liveBullets.push_back(newBullet);
+                g_ShouldFire = false;
+            }
+
+            // Update position of every bullet
+            std::set<int> bulletsToRemove;
+            for (int i = 0; i < liveBullets.size(); i++) {
+                liveBullets[i].pos.x += liveBullets[i].direction.x * 1.0f;
+                liveBullets[i].pos.y += liveBullets[i].direction.y * 1.0f;
+                liveBullets[i].pos.z += liveBullets[i].direction.z * 1.0f;
+                liveBullets[i].t  += 1;
+                if (liveBullets[i].t > BULLET_LIFETIME) {
+                    bulletsToRemove.insert(i);
+                }
+            }
+
+            // Check if bullets hit any object
+            std::set<int> objectsCollided;
+            for (int i = 0; i < liveBullets.size(); i++) {
+                for (int j = 0; j < liveObjects.size(); j++) {
+                    if (collidedPointSphere(liveObjects[j].pos, liveObjects[j].radius, liveBullets[i].pos)) {
+                        bulletsToRemove.insert(i);
+                        objectsCollided.insert(j);
+                        g_Score += (liveObjects[j].type == VIRUS) ? 50 : -100;
+                    }
+                }
+            }
+
+            std::vector<Bullet> survivorBullets;
+            for (int i = 0; i < liveBullets.size(); i++) {
+                if (bulletsToRemove.find(i) == bulletsToRemove.end()) {
+                    survivorBullets.push_back(liveBullets[i]);
+                }
+            }
+            liveBullets = survivorBullets;
+
+            std::vector<GameObject> survivorObjects;
+            for (int i = 0; i < liveObjects.size(); i++) {
+                if (objectsCollided.find(i) == objectsCollided.end()) {
+                    survivorObjects.push_back(liveObjects[i]);
+                }
+            }
+            liveObjects = survivorObjects;
 
             // Update position of every object 
             for (GameObject &current : liveObjects) {
@@ -766,6 +960,27 @@ int main(int argc, char* argv[])
         }
         // MOVEMENT AND GAME LOGIC END
 
+        // Not drawing player yet as we need to fix the rotation
+        // // We draw the Player
+        // model = Matrix_Translate(player.pos.x,player.pos.y,player.pos.z)
+        //         // * Matrix_Rotate_Z(z_freeCam)
+        // 		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
+        //         * Matrix_Rotate_X(-g_CameraPhi_freeCam)
+        //         * Matrix_Rotate_Y(M_PI + g_CameraTheta_freeCam)
+        //         ;
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, AIRCRAFT);
+        // DrawVirtualObject(player.objectName.c_str());
+
+        // We draw bullets
+        for (Bullet &current : liveBullets) {
+            model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
+                  * Matrix_Scale(0.3f, 0.3f, 0.3f)
+                  ;
+            glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+            glUniform1i(object_id_uniform, 11);
+            DrawVirtualObject(current.objectName.c_str());
+        }
 
         // We draw live objects
         for (GameObject &current : liveObjects) {
@@ -1447,19 +1662,36 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
         float dx = xpos - g_LastCursorPosX;
         float dy = ypos - g_LastCursorPosY;
     
-        // Atualizamos parâmetros da câmera com os deslocamentos
-        g_CameraTheta -= 0.01f*dx;
-        g_CameraPhi   += 0.01f*dy;
-    
-        // Em coordenadas esféricas, o ângulo phi deve ficar entre -pi/2 e +pi/2.
-        float phimax = 3.141592f/2;
-        float phimin = -phimax;
-    
-        if (g_CameraPhi > phimax)
-            g_CameraPhi = phimax;
-    
-        if (g_CameraPhi < phimin)
-            g_CameraPhi = phimin;
+        // ALTERED
+        if (g_CamType == CAMERA_TYPE_LOOKAT) {
+            // Atualizamos parâmetros da câmera com os deslocamentos
+            g_CameraTheta_lookAt -= 0.01f*dx;
+            g_CameraPhi_lookAt   += 0.01f*dy;
+        
+            // Em coordenadas esféricas, o ângulo phi deve ficar entre -pi/2 e +pi/2.
+            float phimax = 3.141592f/2;
+            float phimin = -phimax;
+        
+            if (g_CameraPhi_lookAt > phimax)
+                g_CameraPhi_lookAt = phimax;
+        
+            if (g_CameraPhi_lookAt < phimin)
+                g_CameraPhi_lookAt = phimin;
+        } else if (g_CamType == CAMERA_TYPE_FREECAM) {
+            // Atualizamos parâmetros da câmera com os deslocamentos
+            g_CameraTheta_freeCam -= 0.01f*dx;
+            g_CameraPhi_freeCam   += 0.01f*dy;
+        
+            // Em coordenadas esféricas, o ângulo phi deve ficar entre -pi/2 e +pi/2.
+            float phimax = 3.141592f/2;
+            float phimin = -phimax;
+        
+            if (g_CameraPhi_freeCam > phimax)
+                g_CameraPhi_freeCam = phimax;
+        
+            if (g_CameraPhi_freeCam < phimin)
+                g_CameraPhi_freeCam = phimin;
+        }
     
         // Atualizamos as variáveis globais para armazenar a posição atual do
         // cursor como sendo a última posição conhecida do cursor.
@@ -1505,7 +1737,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     // Atualizamos a distância da câmera para a origem utilizando a
     // movimentação da "rodinha", simulando um ZOOM.
-    g_CameraDistance -= 0.1f*yoffset;
+    g_CameraDistance_lookAt -= 0.1f*yoffset;
 
     // Uma câmera look-at nunca pode estar exatamente "em cima" do ponto para
     // onde ela está olhando, pois isto gera problemas de divisão por zero na
@@ -1513,8 +1745,8 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     // nunca pode ser zero. Versões anteriores deste código possuíam este bug,
     // o qual foi detectado pelo aluno Vinicius Fraga (2017/2).
     const float verysmallnumber = std::numeric_limits<float>::epsilon();
-    if (g_CameraDistance < verysmallnumber)
-        g_CameraDistance = verysmallnumber;
+    if (g_CameraDistance_lookAt < verysmallnumber)
+        g_CameraDistance_lookAt = verysmallnumber;
 }
 
 // Definição da função que será chamada sempre que o usuário pressionar alguma
@@ -1602,10 +1834,57 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         fflush(stdout);
     }
 
+    //  ALTERED
     // DEBUG apenas: tecla B aumenta score
     if (key == GLFW_KEY_B && action == GLFW_PRESS)
     {
         if (debugMode) g_Score += 500;
+    }
+
+    // Player movement
+    // W moves FORWARD
+    if (key == GLFW_KEY_W) {
+        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            g_KeyWPressed = true;
+        } else {
+            g_KeyWPressed = false;
+        }
+    }
+    // A moves LEFT
+    if (key == GLFW_KEY_A) {
+        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            g_KeyAPressed = true;
+        } else {
+            g_KeyAPressed = false;
+        }
+    }
+    // S moves BACKWARD
+    if (key == GLFW_KEY_S) {
+        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            g_KeySPressed = true;
+        } else {
+            g_KeySPressed = false;
+        }
+    }
+    // D moves RIGHT
+    if (key == GLFW_KEY_D) {
+        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            g_KeyDPressed = true;
+        } else {
+            g_KeyDPressed = false;
+        }
+    }
+
+    // V changes view
+    if (key == GLFW_KEY_V && action == GLFW_PRESS)
+    {
+        g_Paused = true;
+        g_CamType = (g_CamType == CAMERA_TYPE_LOOKAT) ? CAMERA_TYPE_FREECAM : CAMERA_TYPE_LOOKAT;
+    }
+
+    // SPACEBAR fires a bullet
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        g_ShouldFire = true;
     }
 }
 

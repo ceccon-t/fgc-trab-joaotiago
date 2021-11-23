@@ -83,6 +83,9 @@
 #define MIN_Z -100.0f
 #define MAX_Z 100.0f
 
+// Misc
+#define TOTAL_OBJECTS 15
+
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
 // arquivo ".obj". Veja https://en.wikipedia.org/wiki/Wavefront_.obj_file .
@@ -455,7 +458,7 @@ int main(int argc, char* argv[])
     std::srand(time(NULL));
 
     // // Create a few random objects to populate start of game
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < TOTAL_OBJECTS; i++) {
         GameObject newObject;
         newObject.id = getNextObjectId();
         // newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
@@ -694,6 +697,30 @@ int main(int argc, char* argv[])
         
         // MOVEMENT AND GAME LOGIC START
         if (!g_Paused) {
+
+            // If some objects have been destroyed, we create a new one
+            if (liveObjects.size() < TOTAL_OBJECTS) {  
+                GameObject newObject;
+                newObject.id = getNextObjectId();
+                newObject.radius = 0.9f;
+                newObject.movementType = MOVEMENT_BEZIER;
+                newObject.bezierP1 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
+                newObject.bezierP2 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), a_third_of_z);
+                newObject.bezierP3 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), a_third_of_z*2);
+                newObject.bezierP4 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MAX_Z-3.0f);
+                newObject.pos = glm::vec3(newObject.bezierP1.x, newObject.bezierP1.y, newObject.bezierP1.z);
+                newObject.bezierT = generateRandomFloatInRange(0.001f, 0.100f); // start closer to beginning
+                if (generateRandomSmallFloat() > 0.0f) {
+                    newObject.objectName = "cell";
+                    newObject.type = CELL;
+                    newObject.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+                } else {
+                    newObject.objectName = "corona";
+                    newObject.type = VIRUS;
+                    newObject.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
+                }
+                liveObjects.push_back(newObject);
+            }
 
             // If player has shot, we create a new bullet
             if (g_ShouldFire) {

@@ -66,8 +66,11 @@
 #define MOVEMENT_STATIC 1
 #define MOVEMENT_LINEAR 2
 #define MOVEMENT_BEZIER 3
-#define TIME_MOVEMENT_SCALING_FACTOR 0.01f
+#define TIME_MOVEMENT_SCALING_FACTOR 0.10f
 #define BULLET_LIFETIME 50
+#define MOVEMENT_DELTA_X 5.0f
+#define MOVEMENT_DELTA_Y 5.0f
+#define MOVEMENT_DELTA_Z 10.0f
 
 // For camera
 #define CAMERA_TYPE_LOOKAT 1
@@ -482,10 +485,22 @@ int main(int argc, char* argv[])
         // newObject.pos = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
         // newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
         newObject.movementType = MOVEMENT_BEZIER;
-        newObject.bezierP1 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
-        newObject.bezierP2 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), a_third_of_z);
-        newObject.bezierP3 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), a_third_of_z*2);
-        newObject.bezierP4 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MAX_Z-3.0f);
+        float newX = generateRandomFloatInRange(MIN_X, MAX_X);
+        float newY = generateRandomFloatInRange(MIN_Y, MAX_Y);
+        float newZ = MIN_Z+3.0f;
+        newObject.bezierP1 = glm::vec3(newX, newY, newZ);
+        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+        newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z/3);
+        newObject.bezierP2 = glm::vec3(newX, newY, newZ);
+        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+        newZ += generateRandomFloatInRange(0.0f, 2*MOVEMENT_DELTA_Z/3);
+        newObject.bezierP3 = glm::vec3(newX, newY, newZ);
+        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+        newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z);
+        newObject.bezierP4 = glm::vec3(newX, newY, newZ);
         newObject.pos = glm::vec3(newObject.bezierP1.x, newObject.bezierP1.y, newObject.bezierP1.z);
         newObject.bezierT = generateRandomFloatInRange(0.001f, 0.999f);
         // newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
@@ -802,6 +817,28 @@ int main(int argc, char* argv[])
                 } else if (current.movementType == MOVEMENT_BEZIER) {
                     if (current.bezierT >= 1.0f) {
                         current.bezierT = 0.0f;
+
+                        if (current.bezierP4.z > (MAX_Z - 1.5 * MOVEMENT_DELTA_Z)) {
+                            // We move object back to start of scene
+                            current.bezierP4 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
+                        }
+
+                        float newX = current.bezierP4.x;
+                        float newY = current.bezierP4.y;
+                        float newZ = current.bezierP4.z;
+                        current.bezierP1 = glm::vec3(newX, newY, newZ);
+                        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+                        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+                        newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z/3);
+                        current.bezierP2 = glm::vec3(newX, newY, newZ);
+                        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+                        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+                        newZ += generateRandomFloatInRange(0.0f, 2*MOVEMENT_DELTA_Z/3);
+                        current.bezierP3 = glm::vec3(newX, newY, newZ);
+                        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+                        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+                        newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z);
+                        current.bezierP4 = glm::vec3(newX, newY, newZ);
                     }
 
                     float b03 = pow((1.0f - current.bezierT), 3);

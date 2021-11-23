@@ -83,3 +83,51 @@
         // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         // glUniform1i(object_id_uniform, PLANE);
         // DrawVirtualObject("plane");
+
+
+
+//  SCENARIO (before changing to use constants)
+
+        // // We create the map Boundaries
+        // //Ground
+        // model = Matrix_Translate(0.0f,0.0f,0.0f);
+        // model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, PLANE);
+        // DrawVirtualObject("ground");
+        // //Ceilling
+        // model = Matrix_Translate(0.0f,200.0f,0.0f) 
+        // 		* Matrix_Rotate_Z(M_PI);
+        // model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, PLANE);
+        // DrawVirtualObject("ground");
+        // // Wall 1
+        // model = Matrix_Translate(100.0f,100.0f,0.0f);
+       	// model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, PLANE);
+        // DrawVirtualObject("wall");
+        // // Wall 2
+       	// model = Matrix_Translate(0.0f,100.0f,-100.0f)
+       	// 		* Matrix_Rotate_Y(M_PI_2);
+       	// model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, PLANE);
+        // DrawVirtualObject("wall");
+        // // Wall 3
+        // model = Matrix_Translate(-100.0f,100.0f,0.0f)
+       	// 		* Matrix_Rotate_Y(M_PI);
+       	// model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, PLANE);
+        // DrawVirtualObject("wall");
+        // // Wall 4
+        // model = Matrix_Translate(-0.0f,100.0f,100.0f)
+       	// 		* Matrix_Rotate_Y(M_PI+M_PI_2);
+       	// model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, PLANE);
+        // DrawVirtualObject("wall");
+
+

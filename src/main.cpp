@@ -842,6 +842,7 @@ int main(int argc, char* argv[])
                     if (collidedPointSphere(liveObjects[j].pos, liveObjects[j].radius, liveBullets[i].pos)) {
                         bulletsCollided.insert(i);
                         objectsCollided.insert(j);
+                        g_Score += (liveObjects[j].type == VIRUS) ? 50 : -100;
                     }
                 }
             }

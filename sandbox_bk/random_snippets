@@ -1,0 +1,85 @@
+    // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
+    // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
+    // //   e ir progressivamente deslocando uma delas ateh que parecam 'se tocar', entao raio sera
+    // //   a posicao da deslocada dividido por 2. (no caso, teste com a Terra levou a pos 1.8f, logo, raio 0.9f)
+    // GameObject esferaEsquerda;
+    // esferaEsquerda.id = getNextObjectId();
+    // esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaEsquerda.objectName = "sphere";
+    // esferaEsquerda.type = SPHERE;
+    // esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    // esferaEsquerda.radius = 0.9f;
+    // esferaEsquerda.movementType = MOVEMENT_LINEAR;
+
+    // liveObjects.push_back(esferaEsquerda);
+
+    // GameObject esferaDireita;
+    // esferaDireita.id = getNextObjectId();
+    // esferaDireita.pos = glm::vec3(2.0f, 0.0f, 0.0f);  
+    // esferaDireita.objectName = "sphere";
+    // esferaDireita.type = VIRUS;
+    // esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
+    // esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
+    // esferaDireita.radius = 0.9f;
+    // esferaDireita.movementType = MOVEMENT_LINEAR;
+
+    // liveObjects.push_back(esferaDireita);
+
+
+    // USADO EM EXPERIMENTOS PARA MOVIMENTACAO
+    // GameObject esferaUnica;
+    // esferaUnica.id = getNextObjectId();
+    // esferaUnica.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaUnica.objectName = "sphere";
+    // esferaUnica.type = SPHERE;
+    // esferaUnica.velocity = glm::vec3(1.0f, 1.0f, 1.0f);
+    // esferaUnica.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    // esferaUnica.radius = 0.9f;
+    // esferaUnica.movementType = MOVEMENT_BEZIER;
+    // esferaUnica.bezierP1 = glm::vec3(0.0f, 0.0f, 0.0f);
+    // esferaUnica.bezierP2 = glm::vec3(3.0f, 2.0f, 7.0f);
+    // esferaUnica.bezierP3 = glm::vec3(-2.0f, -5.0f, 14.0f);
+    // esferaUnica.bezierP4 = glm::vec3(1.0f, -3.0f, 20.0f);
+    // esferaUnica.bezierT = 0.0f;
+
+    // liveObjects.push_back(esferaUnica);
+
+
+    // USED TO TEST BULLETS
+    // for (int i = 0; i < 6; i++) {
+    //     GameObject targetPractice;
+    //     targetPractice.id = getNextObjectId();
+    //     targetPractice.pos = glm::vec3(5.0f + 3*i, 5.0f + 3*i, 5.0f  + 3*i);
+    //     targetPractice.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    //     targetPractice.radius = 0.9f;
+    //     targetPractice.movementType = MOVEMENT_STATIC;
+
+    //     if (i % 2 == 0) {
+    //         targetPractice.objectName = "corona";
+    //         targetPractice.type = VIRUS;
+    //         targetPractice.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
+    //     } else {
+    //         targetPractice.objectName = "cell";
+    //         targetPractice.type = CELL;
+    //         targetPractice.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+    //     }
+
+    //     liveObjects.push_back(targetPractice);
+    // }
+
+
+
+// Drawing bunny and plane
+        // // Desenhamos o modelo do coelho
+        // model = Matrix_Translate(1.0f,0.0f,0.0f)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, BUNNY);
+        // DrawVirtualObject("bunny");
+
+        // // Desenhamos o plano do chão
+        // model = Matrix_Translate(0.0f,-1.1f,0.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, PLANE);
+        // DrawVirtualObject("plane");

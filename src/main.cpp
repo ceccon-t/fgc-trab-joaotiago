@@ -717,25 +717,25 @@ int main(int argc, char* argv[])
         glUniform1i(object_id_uniform, PLANE);
         DrawVirtualObject("wall");
         
-        // // We create the Aircraft
-        // model = Matrix_Translate(0.0f,10.0f,0.0f)
-        // 		* Matrix_Scale(5.f, 5.0f, 5.0f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, AIRCRAFT);
-        // DrawVirtualObject("aircraft");
-        // // We create the virus example
-        // model = Matrix_Translate(0.0f,10.0f,30.0f)
-        // 		* Matrix_Scale(0.5f, 0.5f, 0.5f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, VIRUS);
-        // DrawVirtualObject("corona");
+        // We create the Aircraft
+        model = Matrix_Translate(0.0f,10.0f,0.0f)
+        		* Matrix_Scale(5.f, 5.0f, 5.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, AIRCRAFT);
+        DrawVirtualObject("aircraft");
+        // We create the virus example
+        model = Matrix_Translate(0.0f,10.0f,30.0f)
+        		* Matrix_Scale(0.5f, 0.5f, 0.5f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, VIRUS);
+        DrawVirtualObject("corona");
         
-        // // We create the cell example
-        // model = Matrix_Translate(0.0f,10.0f,-27.0f)
-        // 		* Matrix_Scale(10.f, 10.0f, 10.0f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, CELL);
-        // DrawVirtualObject("cell");
+        // We create the cell example
+        model = Matrix_Translate(0.0f,10.0f,-27.0f)
+        		* Matrix_Scale(10.f, 10.0f, 10.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, CELL);
+        DrawVirtualObject("cell");
         
         
         
@@ -865,16 +865,17 @@ int main(int argc, char* argv[])
         }
         // MOVEMENT AND GAME LOGIC END
 
-        // We draw the Player
-        model = Matrix_Translate(player.pos.x,player.pos.y,player.pos.z)
-                // * Matrix_Rotate_Z(z_freeCam)
-        		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
-                * Matrix_Rotate_X(-g_CameraPhi_freeCam)
-                * Matrix_Rotate_Y(M_PI + g_CameraTheta_freeCam)
-                ;
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, AIRCRAFT);
-        DrawVirtualObject(player.objectName.c_str());
+        // Not drawing player yet as we need to fix the rotation
+        // // We draw the Player
+        // model = Matrix_Translate(player.pos.x,player.pos.y,player.pos.z)
+        //         // * Matrix_Rotate_Z(z_freeCam)
+        // 		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
+        //         * Matrix_Rotate_X(-g_CameraPhi_freeCam)
+        //         * Matrix_Rotate_Y(M_PI + g_CameraTheta_freeCam)
+        //         ;
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, AIRCRAFT);
+        // DrawVirtualObject(player.objectName.c_str());
 
         // We draw live objects
         for (GameObject &current : liveObjects) {

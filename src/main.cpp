@@ -73,9 +73,15 @@
 #define CAMERA_TYPE_LOOKAT 1
 #define CAMERA_TYPE_FREECAM 2
 
-// Proportions and etc.
+// Proportions and limits
 #define SCALE_CORONA 0.05f
 #define SCALE_CELL 0.7f
+#define MIN_X -100.0f
+#define MAX_X 100.0f
+#define MIN_Y 0.0f
+#define MAX_Y 200.0f
+#define MIN_Z -100.0f
+#define MAX_Z 100.0f
 
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
@@ -285,9 +291,11 @@ float generateRandomSmallFloat();
 void TextRendering_ShowScore(GLFWwindow* window, int score);
 int getNextObjectId();
 bool typesEliminate(int typeA, int typeB);
+float generateRandomFloatInRange(float min, float max);
+
+float g_TesteFloat = 0.0f;
 
 // Collision functions (move them later to separate file)
-
 
 int main(int argc, char* argv[])
 {
@@ -444,23 +452,26 @@ int main(int argc, char* argv[])
     std::srand(time(NULL));
 
     // // Create a few random objects to populate start of game
-    // for (int i = 0; i < 5; i++) {
-    //     GameObject newObject;
-    //     newObject.id = getNextObjectId();
-    //     newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
-    //     newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-    //     newObject.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    //     newObject.radius = 0.9f;
-    //     newObject.movementType = MOVEMENT_LINEAR;
-    //     if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
-    //         newObject.objectName = "sphere";
-    //         newObject.type = CELL;
-    //     } else {
-    //         newObject.objectName = "sphere";
-    //         newObject.type = VIRUS;
-    //     }
-    //     liveObjects.push_back(newObject);
-    // }
+    for (int i = 0; i < 20; i++) {
+        GameObject newObject;
+        newObject.id = getNextObjectId();
+        // newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
+        // newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
+        newObject.pos = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
+        newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
+        newObject.radius = 0.9f;
+        newObject.movementType = MOVEMENT_LINEAR;
+        if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
+            newObject.objectName = "cell";
+            newObject.type = CELL;
+            newObject.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+        } else {
+            newObject.objectName = "corona";
+            newObject.type = VIRUS;
+            newObject.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
+        }
+        liveObjects.push_back(newObject);
+    }
 
     // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
@@ -650,25 +661,25 @@ int main(int argc, char* argv[])
         glUniform1i(object_id_uniform, PLANE);
         DrawVirtualObject("wall");
         
-        // // We create the Aircraft
-        model = Matrix_Translate(0.0f,10.0f,0.0f)
-        		* Matrix_Scale(5.f, 5.0f, 5.0f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, AIRCRAFT);
-        DrawVirtualObject("aircraft");
-        // We create the virus example
-        model = Matrix_Translate(0.0f,10.0f,30.0f)
-        		* Matrix_Scale(0.5f, 0.5f, 0.5f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, VIRUS);
-        DrawVirtualObject("corona");
+        // // // We create the Aircraft
+        // model = Matrix_Translate(0.0f,10.0f,0.0f)
+        // 		* Matrix_Scale(5.f, 5.0f, 5.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, AIRCRAFT);
+        // DrawVirtualObject("aircraft");
+        // // We create the virus example
+        // model = Matrix_Translate(0.0f,10.0f,30.0f)
+        // 		* Matrix_Scale(0.5f, 0.5f, 0.5f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, VIRUS);
+        // DrawVirtualObject("corona");
         
-        // We create the cell example
-        model = Matrix_Translate(0.0f,10.0f,-27.0f)
-        		* Matrix_Scale(10.f, 10.0f, 10.0f);
-        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(object_id_uniform, CELL);
-        DrawVirtualObject("cell");
+        // // We create the cell example
+        // model = Matrix_Translate(0.0f,10.0f,-27.0f)
+        // 		* Matrix_Scale(10.f, 10.0f, 10.0f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, CELL);
+        // DrawVirtualObject("cell");
         
         // MOVEMENT AND GAME LOGIC START
         if (!g_Paused) {
@@ -2040,3 +2051,9 @@ bool typesEliminate(int typeA, int typeB) {
     return eliminate;
 }
 
+float generateRandomFloatInRange(float min, float max) {
+    float interval = max - min;
+    float n = min + (((float) std::rand()) / (float) RAND_MAX) * interval;
+
+    return n;
+}

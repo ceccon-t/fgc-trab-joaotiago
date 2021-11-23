@@ -31,6 +31,7 @@
 #include <algorithm>
 // ALTERED
 #include <list>
+#include <set>
 
 // Headers das bibliotecas OpenGL
 #include <glad/glad.h>   // Criação de contexto OpenGL 3.3
@@ -490,29 +491,29 @@ int main(int argc, char* argv[])
     // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
     // //   e ir progressivamente deslocando uma delas ateh que parecam 'se tocar', entao raio sera
     // //   a posicao da deslocada dividido por 2. (no caso, teste com a Terra levou a pos 1.8f, logo, raio 0.9f)
-    // GameObject esferaEsquerda;
-    // esferaEsquerda.id = getNextObjectId();
-    // esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    // esferaEsquerda.objectName = "sphere";
-    // esferaEsquerda.type = SPHERE;
-    // esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    // esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    // esferaEsquerda.radius = 0.9f;
-    // esferaEsquerda.movementType = MOVEMENT_LINEAR;
+    GameObject esferaEsquerda;
+    esferaEsquerda.id = getNextObjectId();
+    esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+    esferaEsquerda.objectName = "sphere";
+    esferaEsquerda.type = SPHERE;
+    esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    esferaEsquerda.radius = 0.9f;
+    esferaEsquerda.movementType = MOVEMENT_LINEAR;
 
-    // liveObjects.push_back(esferaEsquerda);
+    liveObjects.push_back(esferaEsquerda);
 
-    // GameObject esferaDireita;
-    // esferaDireita.id = getNextObjectId();
-    // esferaDireita.pos = glm::vec3(2.0f, 0.0f, 0.0f);  
-    // esferaDireita.objectName = "sphere";
-    // esferaDireita.type = VIRUS;
-    // esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
-    // esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
-    // esferaDireita.radius = 0.9f;
-    // esferaDireita.movementType = MOVEMENT_LINEAR;
+    GameObject esferaDireita;
+    esferaDireita.id = getNextObjectId();
+    esferaDireita.pos = glm::vec3(2.0f, 0.0f, 0.0f);  
+    esferaDireita.objectName = "sphere";
+    esferaDireita.type = VIRUS;
+    esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
+    esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
+    esferaDireita.radius = 0.9f;
+    esferaDireita.movementType = MOVEMENT_LINEAR;
 
-    // liveObjects.push_back(esferaDireita);
+    liveObjects.push_back(esferaDireita);
 
 
     // USADO EM EXPERIMENTOS PARA MOVIMENTACAO
@@ -807,6 +808,25 @@ int main(int argc, char* argv[])
                 bullet.pos.z += bullet.direction.z * 1.0f;
             }
 
+            // Check if bullets hit any object
+            std::set<int> bulletsCollided;
+            std::set<int> objectsCollided;
+            for (int i = 0; i < liveBullets.size(); i++) {
+                for (int j = 0; j < liveObjects.size(); j++) {
+                    if (collidedPointSphere(liveObjects[j].pos, liveObjects[j].radius, liveBullets[i].pos)) {
+                        bulletsCollided.insert(i);
+                        objectsCollided.insert(j);
+                    }
+                }
+            }
+            std::vector<GameObject> survivorObjects;
+            for (int i = 0; i < liveObjects.size(); i++) {
+                if (objectsCollided.find(i) == objectsCollided.end()) {
+                    survivorObjects.push_back(liveObjects[i]);
+                }
+            }
+            liveObjects = survivorObjects;
+
             // Update position of every object 
             for (GameObject &current : liveObjects) {
                 if (current.movementType == MOVEMENT_LINEAR) {
@@ -914,7 +934,7 @@ int main(int argc, char* argv[])
         // We draw bullets
         for (Bullet &current : liveBullets) {
             model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
-                  * Matrix_Scale(0.5f, 0.5f, 0.5f)
+                  * Matrix_Scale(0.3f, 0.3f, 0.3f)
                   ;
             glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
             glUniform1i(object_id_uniform, 11);

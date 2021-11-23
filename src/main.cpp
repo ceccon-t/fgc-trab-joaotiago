@@ -432,6 +432,9 @@ int main(int argc, char* argv[])
     float previous_time = (float)glfwGetTime();
     float speed_freeCam = 15.0f;
 
+    // Other general use variables
+    float a_third_of_z = (MAX_Z + MIN_Z) / 3;
+
     // Variables to control camera movement
     glm::vec4 camera_position_c_freeCam  = glm::vec4(9.0f,9.0f,-9.0f,1.0f); // Ponto "c", centro da câmera
 
@@ -452,15 +455,23 @@ int main(int argc, char* argv[])
     std::srand(time(NULL));
 
     // // Create a few random objects to populate start of game
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 30; i++) {
         GameObject newObject;
         newObject.id = getNextObjectId();
         // newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
         // newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-        newObject.pos = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
-        newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
         newObject.radius = 0.9f;
-        newObject.movementType = MOVEMENT_LINEAR;
+        // newObject.movementType = MOVEMENT_LINEAR;
+        // newObject.pos = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
+        // newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
+        newObject.movementType = MOVEMENT_BEZIER;
+        newObject.bezierP1 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
+        newObject.bezierP2 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), a_third_of_z);
+        newObject.bezierP3 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), a_third_of_z*2);
+        newObject.bezierP4 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MAX_Z-3.0f);
+        newObject.pos = glm::vec3(newObject.bezierP1.x, newObject.bezierP1.y, newObject.bezierP1.z);
+        newObject.bezierT = generateRandomFloatInRange(0.001f, 0.999f);
+        // newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
         if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
             newObject.objectName = "cell";
             newObject.type = CELL;

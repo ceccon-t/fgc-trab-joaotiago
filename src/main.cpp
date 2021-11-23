@@ -67,6 +67,7 @@
 #define MOVEMENT_LINEAR 2
 #define MOVEMENT_BEZIER 3
 #define TIME_MOVEMENT_SCALING_FACTOR 0.01f
+#define BULLET_LIFETIME 50
 
 // For camera
 #define CAMERA_TYPE_LOOKAT 1
@@ -540,26 +541,26 @@ int main(int argc, char* argv[])
 
 
     // For testing bullets
-    for (int i = 0; i < 6; i++) {
-        GameObject targetPractice;
-        targetPractice.id = getNextObjectId();
-        targetPractice.pos = glm::vec3(5.0f + 3*i, 5.0f + 3*i, 5.0f  + 3*i);
-        targetPractice.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-        targetPractice.radius = 0.9f;
-        targetPractice.movementType = MOVEMENT_STATIC;
+    // for (int i = 0; i < 6; i++) {
+    //     GameObject targetPractice;
+    //     targetPractice.id = getNextObjectId();
+    //     targetPractice.pos = glm::vec3(5.0f + 3*i, 5.0f + 3*i, 5.0f  + 3*i);
+    //     targetPractice.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    //     targetPractice.radius = 0.9f;
+    //     targetPractice.movementType = MOVEMENT_STATIC;
 
-        if (i % 2 == 0) {
-            targetPractice.objectName = "corona";
-            targetPractice.type = VIRUS;
-            targetPractice.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
-        } else {
-            targetPractice.objectName = "cell";
-            targetPractice.type = CELL;
-            targetPractice.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
-        }
+    //     if (i % 2 == 0) {
+    //         targetPractice.objectName = "corona";
+    //         targetPractice.type = VIRUS;
+    //         targetPractice.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
+    //     } else {
+    //         targetPractice.objectName = "cell";
+    //         targetPractice.type = CELL;
+    //         targetPractice.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+    //     }
 
-        liveObjects.push_back(targetPractice);
-    }
+    //     liveObjects.push_back(targetPractice);
+    // }
 
 
     // Ficamos em loop, renderizando, até que o usuário feche a janela
@@ -757,24 +758,24 @@ int main(int argc, char* argv[])
         DrawVirtualObject("wall");
         
         // // We create the Aircraft
-        // model = Matrix_Translate(0.0f,10.0f,0.0f)
-        // 		* Matrix_Scale(5.f, 5.0f, 5.0f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, AIRCRAFT);
-        // DrawVirtualObject("aircraft");
-        // // We create the virus example
-        // model = Matrix_Translate(0.0f,10.0f,30.0f)
-        // 		* Matrix_Scale(0.5f, 0.5f, 0.5f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, VIRUS);
-        // DrawVirtualObject("corona");
+        model = Matrix_Translate(0.0f,10.0f,0.0f)
+        		* Matrix_Scale(5.f, 5.0f, 5.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, AIRCRAFT);
+        DrawVirtualObject("aircraft");
+        // We create the virus example
+        model = Matrix_Translate(0.0f,10.0f,30.0f)
+        		* Matrix_Scale(0.5f, 0.5f, 0.5f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, VIRUS);
+        DrawVirtualObject("corona");
         
-        // // We create the cell example
-        // model = Matrix_Translate(0.0f,10.0f,-27.0f)
-        // 		* Matrix_Scale(10.f, 10.0f, 10.0f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, CELL);
-        // DrawVirtualObject("cell");
+        // We create the cell example
+        model = Matrix_Translate(0.0f,10.0f,-27.0f)
+        		* Matrix_Scale(10.f, 10.0f, 10.0f);
+        glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(object_id_uniform, CELL);
+        DrawVirtualObject("cell");
         
         
         
@@ -828,19 +829,23 @@ int main(int argc, char* argv[])
             }
 
             // Update position of every bullet
-            for (Bullet  &bullet : liveBullets) {
-                bullet.pos.x += bullet.direction.x * 1.0f;
-                bullet.pos.y += bullet.direction.y * 1.0f;
-                bullet.pos.z += bullet.direction.z * 1.0f;
+            std::set<int> bulletsToRemove;
+            for (int i = 0; i < liveBullets.size(); i++) {
+                liveBullets[i].pos.x += liveBullets[i].direction.x * 1.0f;
+                liveBullets[i].pos.y += liveBullets[i].direction.y * 1.0f;
+                liveBullets[i].pos.z += liveBullets[i].direction.z * 1.0f;
+                liveBullets[i].t  += 1;
+                if (liveBullets[i].t > BULLET_LIFETIME) {
+                    bulletsToRemove.insert(i);
+                }
             }
 
             // Check if bullets hit any object
-            std::set<int> bulletsCollided;
             std::set<int> objectsCollided;
             for (int i = 0; i < liveBullets.size(); i++) {
                 for (int j = 0; j < liveObjects.size(); j++) {
                     if (collidedPointSphere(liveObjects[j].pos, liveObjects[j].radius, liveBullets[i].pos)) {
-                        bulletsCollided.insert(i);
+                        bulletsToRemove.insert(i);
                         objectsCollided.insert(j);
                         g_Score += (liveObjects[j].type == VIRUS) ? 50 : -100;
                     }
@@ -849,7 +854,7 @@ int main(int argc, char* argv[])
 
             std::vector<Bullet> survivorBullets;
             for (int i = 0; i < liveBullets.size(); i++) {
-                if (bulletsCollided.find(i) == bulletsCollided.end()) {
+                if (bulletsToRemove.find(i) == bulletsToRemove.end()) {
                     survivorBullets.push_back(liveBullets[i]);
                 }
             }

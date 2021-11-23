@@ -183,6 +183,14 @@ struct Player {
     int size;
 };
 
+// Structure to store information about player bullets
+struct Bullet {
+    std::string objectName;
+    glm::vec3 pos;
+    glm::vec3 direction;
+    int t;
+};
+
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
 
 // A cena virtual é uma lista de objetos nomeados, guardados em um dicionário
@@ -247,6 +255,7 @@ int g_Score = 0;
 bool debugMode = false;
 int g_nextObjectId = 0;
 bool g_Paused = false;
+bool g_ShouldFire = false;
 
 // Variável que controla se o texto informativo será mostrado na tela.
 bool g_ShowInfoText = false;
@@ -444,6 +453,9 @@ int main(int argc, char* argv[])
     player.pos = glm::vec3(9.0f, 8.0f, -10.5f);
     player.scale = glm::vec3(1.0f, 1.0f, 1.0f);
     player.size = 1;
+
+    // Bullets
+    std::vector<Bullet> liveBullets;
 
     // ALTERED
     std::vector<GameObject> liveObjects;
@@ -773,6 +785,28 @@ int main(int argc, char* argv[])
         // MOVEMENT AND GAME LOGIC START
         if (!g_Paused) {
 
+            // If player has shot, we create a new bullet
+            if (g_ShouldFire) {
+                Bullet newBullet;
+                newBullet.objectName = "sphere";
+                newBullet.direction.x = -(camera_w_vector.x);
+                newBullet.direction.y = -(camera_w_vector.y);
+                newBullet.direction.z = -(camera_w_vector.z);
+                newBullet.pos.x = camera_position_c_freeCam.x + 5*newBullet.direction.x;
+                newBullet.pos.y = camera_position_c_freeCam.y + 5*newBullet.direction.y;
+                newBullet.pos.z = camera_position_c_freeCam.z + 5*newBullet.direction.z;
+                newBullet.t = 1;
+                liveBullets.push_back(newBullet);
+                g_ShouldFire = false;
+            }
+
+            // Update position of every bullet
+            for (Bullet  &bullet : liveBullets) {
+                bullet.pos.x += bullet.direction.x * 1.0f;
+                bullet.pos.y += bullet.direction.y * 1.0f;
+                bullet.pos.z += bullet.direction.z * 1.0f;
+            }
+
             // Update position of every object 
             for (GameObject &current : liveObjects) {
                 if (current.movementType == MOVEMENT_LINEAR) {
@@ -876,6 +910,16 @@ int main(int argc, char* argv[])
         // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         // glUniform1i(object_id_uniform, AIRCRAFT);
         // DrawVirtualObject(player.objectName.c_str());
+
+        // We draw bullets
+        for (Bullet &current : liveBullets) {
+            model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
+                  * Matrix_Scale(0.5f, 0.5f, 0.5f)
+                  ;
+            glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+            glUniform1i(object_id_uniform, 11);
+            DrawVirtualObject(current.objectName.c_str());
+        }
 
         // We draw live objects
         for (GameObject &current : liveObjects) {
@@ -1775,6 +1819,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     {
         g_Paused = true;
         g_CamType = (g_CamType == CAMERA_TYPE_LOOKAT) ? CAMERA_TYPE_FREECAM : CAMERA_TYPE_LOOKAT;
+    }
+
+    // SPACEBAR fires a bullet
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        g_ShouldFire = true;
     }
 }
 

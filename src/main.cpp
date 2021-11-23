@@ -5,7 +5,7 @@
 //    INF01047 Fundamentos de Computação Gráfica
 //               Prof. Eduardo Gastal
 //
-//                   LABORATÓRIO 5
+//                   TRABALHO FINAL
 //
 
 // Arquivos "headers" padrões de C podem ser incluídos em um
@@ -29,7 +29,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
-// ALTERED
+
 #include <list>
 #include <set>
 
@@ -54,8 +54,8 @@
 
 // Game object types
 #define SPHERE 0
-#define BUNNY  1
-#define PLANE  2
+#define BUNNY 1
+#define PLANE 2
 #define AIRCRAFT 3
 #define WALL 4
 #define GROUND 5
@@ -284,20 +284,9 @@ GLuint g_NumLoadedTextures = 0;
 float generateRandomSmallFloat();
 void TextRendering_ShowScore(GLFWwindow* window, int score);
 int getNextObjectId();
-
+bool typesEliminate(int typeA, int typeB);
 
 // Collision functions (move them later to separate file)
-bool typesEliminate(int typeA, int typeB) {
-    bool eliminate = false;
-
-    if (typeA == CELL && typeB == VIRUS) {
-        eliminate = true;
-    } else if (typeA == VIRUS && typeB == CELL) {
-        eliminate = true;
-    }
-
-    return eliminate;
-}
 
 
 int main(int argc, char* argv[])
@@ -329,7 +318,7 @@ int main(int argc, char* argv[])
     // Criamos uma janela do sistema operacional, com 800 colunas e 600 linhas
     // de pixels, e com título "INF01047 ...".
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "INF01047 - Trabalho - ADICIONAR NOMES DEPOIS", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "INF01047 - Trabalho - Joao Atz Dick e Tiago Silveira Ceccon", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -431,25 +420,10 @@ int main(int argc, char* argv[])
     glm::mat4 the_model;
     glm::mat4 the_view;
 
-    // ALTERED
+    // Setup time-related variables
     float previous_time = (float)glfwGetTime();
-    float new_x = 0.0f;
-    float previous_x = 0.0f;
+    float speed_freeCam = 15.0f;
 
-    // ALTERED
-    // GameObject evilEarth;
-    // evilEarth.pos = glm::vec3(0.0f, 2.0f, 0.0f);
-    // evilEarth.objectName = "sphere";
-    // evilEarth.type = SPHERE;
-    // evilEarth.velocity = glm::vec3(0.1f, 0.0f, 0.1f);
-
-    // GameObject evilRabbit;
-    // evilRabbit.pos = glm::vec3(0.0f, -2.0f, 0.0f);
-    // evilRabbit.objectName = "bunny";
-    // evilRabbit.type = BUNNY;
-    // evilRabbit.velocity = glm::vec3(0.0f, 0.1f, 0.1f);
-
-    // ALTERED
     // Variables to control camera movement
     glm::vec4 camera_position_c_freeCam  = glm::vec4(9.0f,9.0f,-9.0f,1.0f); // Ponto "c", centro da câmera
 
@@ -463,17 +437,13 @@ int main(int argc, char* argv[])
     // Bullets
     std::vector<Bullet> liveBullets;
 
-    // ALTERED
+    // Destroyable objects (cells and viruses)
     std::vector<GameObject> liveObjects;
-    // liveObjects.push_back(evilEarth);
-    // liveObjects.push_back(evilRabbit);
-    // float te = ((float) std::rand()) / (float) RAND_MAX;
-    // printf("%f", te);
 
     // RANDOM SEED
     std::srand(time(NULL));
 
-    // // Create a few random objects
+    // // Create a few random objects to populate start of game
     // for (int i = 0; i < 5; i++) {
     //     GameObject newObject;
     //     newObject.id = getNextObjectId();
@@ -491,77 +461,6 @@ int main(int argc, char* argv[])
     //     }
     //     liveObjects.push_back(newObject);
     // }
-
-    // // USADO EM EXPERIMENTOS PARA ENCONTRAR MELHOR TAMANHO PARA RAIO BASEADO NO MODELO
-    // // Colocar duas esferas de mesma escala (baseada no obj utilizado) ambas na origem (0, 0, 0)
-    // //   e ir progressivamente deslocando uma delas ateh que parecam 'se tocar', entao raio sera
-    // //   a posicao da deslocada dividido por 2. (no caso, teste com a Terra levou a pos 1.8f, logo, raio 0.9f)
-    // GameObject esferaEsquerda;
-    // esferaEsquerda.id = getNextObjectId();
-    // esferaEsquerda.pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    // esferaEsquerda.objectName = "sphere";
-    // esferaEsquerda.type = SPHERE;
-    // esferaEsquerda.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    // esferaEsquerda.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    // esferaEsquerda.radius = 0.9f;
-    // esferaEsquerda.movementType = MOVEMENT_LINEAR;
-
-    // liveObjects.push_back(esferaEsquerda);
-
-    // GameObject esferaDireita;
-    // esferaDireita.id = getNextObjectId();
-    // esferaDireita.pos = glm::vec3(2.0f, 0.0f, 0.0f);  
-    // esferaDireita.objectName = "sphere";
-    // esferaDireita.type = VIRUS;
-    // esferaDireita.velocity = glm::vec3(-0.1f, 0.0f, 0.0f);
-    // esferaDireita.scale = glm::vec3(1.0f, 1.0f, 1.0f);;
-    // esferaDireita.radius = 0.9f;
-    // esferaDireita.movementType = MOVEMENT_LINEAR;
-
-    // liveObjects.push_back(esferaDireita);
-
-
-    // USADO EM EXPERIMENTOS PARA MOVIMENTACAO
-    // GameObject esferaUnica;
-    // esferaUnica.id = getNextObjectId();
-    // esferaUnica.pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    // esferaUnica.objectName = "sphere";
-    // esferaUnica.type = SPHERE;
-    // esferaUnica.velocity = glm::vec3(1.0f, 1.0f, 1.0f);
-    // esferaUnica.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    // esferaUnica.radius = 0.9f;
-    // esferaUnica.movementType = MOVEMENT_BEZIER;
-    // esferaUnica.bezierP1 = glm::vec3(0.0f, 0.0f, 0.0f);
-    // esferaUnica.bezierP2 = glm::vec3(3.0f, 2.0f, 7.0f);
-    // esferaUnica.bezierP3 = glm::vec3(-2.0f, -5.0f, 14.0f);
-    // esferaUnica.bezierP4 = glm::vec3(1.0f, -3.0f, 20.0f);
-    // esferaUnica.bezierT = 0.0f;
-
-    // liveObjects.push_back(esferaUnica);
-
-
-    // For testing bullets
-    // for (int i = 0; i < 6; i++) {
-    //     GameObject targetPractice;
-    //     targetPractice.id = getNextObjectId();
-    //     targetPractice.pos = glm::vec3(5.0f + 3*i, 5.0f + 3*i, 5.0f  + 3*i);
-    //     targetPractice.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    //     targetPractice.radius = 0.9f;
-    //     targetPractice.movementType = MOVEMENT_STATIC;
-
-    //     if (i % 2 == 0) {
-    //         targetPractice.objectName = "corona";
-    //         targetPractice.type = VIRUS;
-    //         targetPractice.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
-    //     } else {
-    //         targetPractice.objectName = "cell";
-    //         targetPractice.type = CELL;
-    //         targetPractice.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
-    //     }
-
-    //     liveObjects.push_back(targetPractice);
-    // }
-
 
     // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
@@ -584,13 +483,10 @@ int main(int argc, char* argv[])
         // os shaders de vértice e fragmentos).
         glUseProgram(program_id);
 
-        // ALTERED 
+        // Handle time variation
         float current_time = (float)glfwGetTime();
         float delta_time = current_time - previous_time;
         previous_time = current_time;
-        new_x = previous_x + delta_time * 2;
-        previous_x = new_x;
-        float speed_freeCam = 15.0f;
         
         // Computamos a posição da câmera utilizando coordenadas esféricas.  As
         // variáveis g_CameraDistance_lookAt, g_CameraPhi_lookAt, e g_CameraTheta_lookAt são
@@ -610,7 +506,6 @@ int main(int argc, char* argv[])
 
         // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
         // Veja slides 195-227 e 229-234 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        // ALTERED
         glm::vec4 camera_position_c_lookAt  = glm::vec4(x_lookAt,y_lookAt,z_lookAt,1.0f); // Ponto "c", centro da câmera
         // glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
         glm::vec4 camera_lookat_l    = glm::vec4(player.pos.x,player.pos.y,player.pos.z,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
@@ -629,7 +524,8 @@ int main(int argc, char* argv[])
             glm::vec4 displacement;
             if (g_KeyWPressed) {
                 displacement = (-camera_w_vector) * speed_freeCam * delta_time;
-                // camera_position_c_freeCam  += (-camera_w_vector) * speed_freeCam * delta_time;
+
+                // For free cam, apply movement to camera and player together
                 camera_position_c_freeCam  += (-camera_w_vector) * speed_freeCam * delta_time;
                 player.pos.x += displacement.x;
                 player.pos.y += displacement.y;
@@ -637,7 +533,8 @@ int main(int argc, char* argv[])
             } 
             if (g_KeyAPressed) {
                 displacement = (-camera_u_vector) * speed_freeCam * delta_time;
-                // camera_position_c_freeCam  += (-camera_u_vector) * speed_freeCam * delta_time; 
+
+                // For free cam, apply movement to camera and player together
                 camera_position_c_freeCam  += displacement; 
                 player.pos.x += displacement.x;
                 player.pos.y += displacement.y;
@@ -645,7 +542,8 @@ int main(int argc, char* argv[])
             } 
             if (g_KeySPressed) {
                 displacement = camera_w_vector * speed_freeCam * delta_time;
-                // camera_position_c_freeCam  += camera_w_vector * speed_freeCam * delta_time; 
+
+                // For free cam, apply movement to camera and player together
                 camera_position_c_freeCam  += displacement; 
                 player.pos.x += displacement.x;
                 player.pos.y += displacement.y;
@@ -653,7 +551,8 @@ int main(int argc, char* argv[])
             } 
             if (g_KeyDPressed) {
                 displacement = camera_u_vector * speed_freeCam * delta_time; 
-                // camera_position_c_freeCam  += camera_u_vector * speed_freeCam * delta_time; 
+
+                // For free cam, apply movement to camera and player together
                 camera_position_c_freeCam  += displacement;
                 player.pos.x += displacement.x;
                 player.pos.y += displacement.y;
@@ -664,11 +563,11 @@ int main(int argc, char* argv[])
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slides 2-14, 184-190 e 236-242 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        glm::mat4 view = Matrix_Camera_View(camera_position_c_lookAt, camera_view_vector_lookAt, camera_up_vector_lookAt);
-        // ALTERED
+        glm::mat4 view;
+
         if (g_CamType == CAMERA_TYPE_LOOKAT) {
             view = Matrix_Camera_View(camera_position_c_lookAt, camera_view_vector_lookAt, camera_up_vector_lookAt);
-        } else {
+        } else {  // free cam
             view = Matrix_Camera_View(camera_position_c_freeCam, camera_view_vector_freeCam, camera_up_vector_freeCam);
         }
 
@@ -678,8 +577,6 @@ int main(int argc, char* argv[])
         // Note que, no sistema de coordenadas da câmera, os planos near e far
         // estão no sentido negativo! Veja slides 176-204 do documento Aula_09_Projecoes.pdf.
         float nearplane = -0.1f;  // Posição do "near plane"
-        // float farplane  = -10.0f; // Posição do "far plane"
-        // ALTERED
         float farplane  = -300.0f; // Posição do "far plane"
 
         if (g_UsePerspectiveProjection)
@@ -710,10 +607,6 @@ int main(int argc, char* argv[])
         // efetivamente aplicadas em todos os pontos.
         glUniformMatrix4fv(view_uniform       , 1 , GL_FALSE , glm::value_ptr(view));
         glUniformMatrix4fv(projection_uniform , 1 , GL_FALSE , glm::value_ptr(projection));
-
-        // MOVED SPHERE, BUNNY, PLANE CONSTANTS FROM HERE TO TOP OF FILE
-
-        
 
         // We create the map Boundaries
         //Ground
@@ -777,39 +670,6 @@ int main(int argc, char* argv[])
         glUniform1i(object_id_uniform, CELL);
         DrawVirtualObject("cell");
         
-        
-        
-        
-         
-        // model = Matrix_Translate(-1.0f,0.0f,0.0f)
-        //       * Matrix_Rotate_Z(0.6f)
-        //       * Matrix_Rotate_X(0.2f)
-        //       * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-
-        // // We create a new (moving sphere)
-        // model = Matrix_Translate(new_x,0.0f,0.0f)
-        //       * Matrix_Scale(0.1f, 0.1f, 0.1f)
-        //       * Matrix_Rotate_Z(0.6f)
-        //       * Matrix_Rotate_X(0.2f)
-        //       * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-
-        // We create the evil Earth
-        // model = Matrix_Translate(evilEarth.pos.x,evilEarth.pos.y,evilEarth.pos.z)
-        //       * Matrix_Scale(1.0f, 1.0f, 1.0f)
-        //       * Matrix_Rotate_Z(0.6f)
-        //       * Matrix_Rotate_X(0.2f)
-        //       * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject(evilEarth.objectName.c_str());
-
-
         // MOVEMENT AND GAME LOGIC START
         if (!g_Paused) {
 
@@ -852,6 +712,7 @@ int main(int argc, char* argv[])
                 }
             }
 
+            // Remove bullets that either have hit or outlived their times
             std::vector<Bullet> survivorBullets;
             for (int i = 0; i < liveBullets.size(); i++) {
                 if (bulletsToRemove.find(i) == bulletsToRemove.end()) {
@@ -860,6 +721,7 @@ int main(int argc, char* argv[])
             }
             liveBullets = survivorBullets;
 
+            // Remove objects that have been hit by bullets
             std::vector<GameObject> survivorObjects;
             for (int i = 0; i < liveObjects.size(); i++) {
                 if (objectsCollided.find(i) == objectsCollided.end()) {
@@ -879,27 +741,6 @@ int main(int argc, char* argv[])
                         current.bezierT = 0.0f;
                     }
 
-                    // if (current.bezierT < 1.0f) {
-                    //     current.pos.x = current.bezierP1.x;
-                    //     current.pos.y = current.bezierP1.y;
-                    //     current.pos.z = current.bezierP1.z;
-                    // }
-                    // else if (current.bezierT < 2.0f) {
-                    //     current.pos.x = current.bezierP2.x;
-                    //     current.pos.y = current.bezierP2.y;
-                    //     current.pos.z = current.bezierP2.z;
-                    // }
-                    // else if (current.bezierT < 3.0f) {
-                    //     current.pos.x = current.bezierP3.x;
-                    //     current.pos.y = current.bezierP3.y;
-                    //     current.pos.z = current.bezierP3.z;
-                    // }
-                    // else if (current.bezierT < 4.0f) {
-                    //     current.pos.x = current.bezierP4.x;
-                    //     current.pos.y = current.bezierP4.y;
-                    //     current.pos.z = current.bezierP4.z;
-                    // }
-
                     float b03 = pow((1.0f - current.bezierT), 3);
                     float b13 = 3*current.bezierT*pow((1-current.bezierT), 2);
                     float b23 = 3*pow(current.bezierT, 2)*(1-current.bezierT);
@@ -908,15 +749,6 @@ int main(int argc, char* argv[])
                     current.pos.x = b03*(current.bezierP1.x) + b13*(current.bezierP2.x) + b23*(current.bezierP3.x) +b33*(current.bezierP4.x);
                     current.pos.y = b03*(current.bezierP1.y) + b13*(current.bezierP2.y) + b23*(current.bezierP3.y) +b33*(current.bezierP4.y);
                     current.pos.z = b03*(current.bezierP1.z) + b13*(current.bezierP2.z) + b23*(current.bezierP3.z) +b33*(current.bezierP4.z);
-
-                    // float totalDistance = glm::distance(current.bezierP1, current.bezierP2)
-                    //                         + glm::distance(current.bezierP2, current.bezierP3)
-                    //                         + glm::distance(current.bezierP3, current.bezierP4);
-                    // float step = totalDistance / 10000;
-                    // g_Score = totalDistance;
-                    // current.bezierT += step;
-
-                    // current.bezierT += 0.001f;
 
                     current.bezierT += delta_time * TIME_MOVEMENT_SCALING_FACTOR;
 
@@ -930,10 +762,10 @@ int main(int argc, char* argv[])
             for (size_t i = 0; i < liveObjects.size(); i++) {
                 marked = false;
                 GameObject curI = liveObjects[i];
-                if ( (std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curI.id)) < 1 ) { // Jesus Christ I HATE C++
+                if ( (std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curI.id)) < 1 ) { 
                     for (size_t j = i+1; j < liveObjects.size(); j++) {
                         GameObject curJ = liveObjects[j];
-                        if ((std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curJ.id)) < 1) {  // Seriously, I REALLY hate C++
+                        if ((std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curJ.id)) < 1) {  
                             glm::vec3 a = glm::vec3(curI.pos.x, curI.pos.y, curI.pos.z);
                             float aR = curI.radius;
                             glm::vec3 b = glm::vec3(curJ.pos.x, curJ.pos.y, curJ.pos.z);
@@ -984,8 +816,6 @@ int main(int argc, char* argv[])
 
         // We draw live objects
         for (GameObject &current : liveObjects) {
-            // current.pos.x += 0.02f;
-
             model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
                   * Matrix_Scale(current.scale.x, current.scale.y, current.scale.z)
                   * Matrix_Rotate_Z(0.6f)
@@ -995,21 +825,6 @@ int main(int argc, char* argv[])
             glUniform1i(object_id_uniform, current.type);
             DrawVirtualObject(current.objectName.c_str());
         }
-
-        // int col = colidiuEsferaEsfera(window, liveObjects[0].pos, liveObjects[0].radius, liveObjects[1].pos, liveObjects[1].radius);
-
-        // // Desenhamos o modelo do coelho
-        // model = Matrix_Translate(1.0f,0.0f,0.0f)
-        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, BUNNY);
-        // DrawVirtualObject("bunny");
-
-        // // Desenhamos o plano do chão
-        // model = Matrix_Translate(0.0f,-1.1f,0.0f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, PLANE);
-        // DrawVirtualObject("plane");
 
         // Pegamos um vértice com coordenadas de modelo (0.5, 0.5, 0.5, 1) e o
         // passamos por todos os sistemas de coordenadas armazenados nas
@@ -1834,8 +1649,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         fflush(stdout);
     }
 
-    //  ALTERED
-    // DEBUG apenas: tecla B aumenta score
+    // DEBUG only: key B increases score
     if (key == GLFW_KEY_B && action == GLFW_PRESS)
     {
         if (debugMode) g_Score += 500;
@@ -2199,21 +2013,30 @@ float generateRandomSmallFloat() {
     return n - 0.5f;
 }
 
-void TextRendering_ShowScore(GLFWwindow* window, int score)
-{
-
+void TextRendering_ShowScore(GLFWwindow* window, int score){
     float lineheight = TextRendering_LineHeight(window);
     float charwidth = TextRendering_CharWidth(window);
 
     std::string strScore = std::to_string(score);
     std::string output = "Score: " + strScore;
 
-    // TextRendering_PrintString(window, output, 1.0f-25*charwidth, -1.0f+2*lineheight/10, 2.0f);
     TextRendering_PrintString(window, output, 1.0f-25*charwidth, -1.0f+2*lineheight/10, 2.0f);
 }
 
 int getNextObjectId() {
     g_nextObjectId += 1;
     return g_nextObjectId;
+}
+
+bool typesEliminate(int typeA, int typeB) {
+    bool eliminate = false;
+
+    if (typeA == CELL && typeB == VIRUS) {
+        eliminate = true;
+    } else if (typeA == VIRUS && typeB == CELL) {
+        eliminate = true;
+    }
+
+    return eliminate;
 }
 

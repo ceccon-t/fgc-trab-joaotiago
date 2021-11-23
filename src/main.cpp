@@ -441,13 +441,24 @@ int main(int argc, char* argv[])
     // Other general use variables
     float a_third_of_z = (MAX_Z + MIN_Z) / 3;
 
+    // Initial position
+    // float initial_cam_x = MAX_X/2;
+    // float initial_cam_y = MAX_Y/2;
+    // float initial_cam_z = -MAX_Z/3;
+    float initial_cam_x = 9.0f;
+    float initial_cam_y = 9.0f;
+    float initial_cam_z = -9.0f;
+    float initial_player_x = initial_cam_x;
+    float initial_player_y = initial_cam_y - 1.0f;
+    float initial_player_z = initial_cam_z - 1.5f;
+
     // Variables to control camera movement
-    glm::vec4 camera_position_c_freeCam  = glm::vec4(9.0f,9.0f,-9.0f,1.0f); // Ponto "c", centro da câmera
+    glm::vec4 camera_position_c_freeCam  = glm::vec4(initial_cam_x,initial_cam_y,initial_cam_z,1.0f); // Ponto "c", centro da câmera
 
     // Player
     Player player;
     player.objectName = "aircraft";
-    player.pos = glm::vec3(9.0f, 8.0f, -10.5f);
+    player.pos = glm::vec3(initial_player_x, initial_player_y, initial_player_z);
     player.scale = glm::vec3(1.0f, 1.0f, 1.0f);
     player.size = 1;
 

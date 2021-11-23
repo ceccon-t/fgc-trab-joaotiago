@@ -846,6 +846,15 @@ int main(int argc, char* argv[])
                     }
                 }
             }
+
+            std::vector<Bullet> survivorBullets;
+            for (int i = 0; i < liveBullets.size(); i++) {
+                if (bulletsCollided.find(i) == bulletsCollided.end()) {
+                    survivorBullets.push_back(liveBullets[i]);
+                }
+            }
+            liveBullets = survivorBullets;
+
             std::vector<GameObject> survivorObjects;
             for (int i = 0; i < liveObjects.size(); i++) {
                 if (objectsCollided.find(i) == objectsCollided.end()) {

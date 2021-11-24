@@ -90,6 +90,7 @@
 
 // Misc
 #define TOTAL_OBJECTS 15
+#define MINIMUM_ENEMIES TOTAL_OBJECTS / 3
 #define VIRUS_DESTROYED_REWARD 50
 #define CELL_DESTROYED_REWARD -100
 #define PROB_VIRUS_WILL_NOT_SEARCH 0.09f
@@ -501,7 +502,7 @@ int main(int argc, char* argv[])
         float newY = generateRandomFloatInRange(MIN_Y, MAX_Y);
         float newZ = MIN_Z+3.0f;
         // newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
-        if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
+        if ((liveViruses.size() > MINIMUM_ENEMIES) && generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
             newObject.objectName = "cell";
             newObject.type = CELL;
             newObject.radius = RADIUS_CELL;
@@ -785,7 +786,7 @@ int main(int argc, char* argv[])
                 float newX = generateRandomFloatInRange(MIN_X, MAX_X);
                 float newY = generateRandomFloatInRange(MIN_Y, MAX_Y);
                 float newZ = MIN_Z+3.0f;
-                if (generateRandomSmallFloat() > 0.0f) {
+                if ((liveViruses.size() > MINIMUM_ENEMIES) && generateRandomSmallFloat() > 0.0f) {
                     newObject.objectName = "cell";
                     newObject.type = CELL;
                     newObject.radius = RADIUS_CELL;

@@ -85,6 +85,32 @@
         // DrawVirtualObject("plane");
 
 
+// Testing live object elimination
+
+    // // TO TEST NEW VIRUS-CELL ELIMINATION LOGIC
+    // GameObject testCell;
+    // testCell.id = getNextObjectId();
+    // testCell.radius = 0.9;
+    // testCell.pos = glm::vec3(initial_cam_x+10.0f, initial_cam_y, initial_cam_z+15.0f);
+    // testCell.movementType = MOVEMENT_STATIC;
+    // testCell.objectName = "cell";
+    // testCell.type = CELL;
+    // testCell.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+    // liveCells.push_back(testCell);
+
+    // GameObject testVirus;
+    // testVirus.id = getNextObjectId();
+    // testVirus.radius = 0.9;
+    // testVirus.pos = glm::vec3(initial_cam_x-10.0f, initial_cam_y, initial_cam_z+15.0f);
+    // testVirus.movementType = MOVEMENT_LINEAR;
+    // testVirus.velocity = glm::vec3(1.0f, 0.0f, 0.0f);
+    // testVirus.objectName = "corona";
+    // testVirus.type = VIRUS;
+    // testVirus.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
+    // liveViruses.push_back(testVirus);
+
+
+
 
 //  SCENARIO (before changing to use constants)
 

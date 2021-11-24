@@ -75,6 +75,9 @@
 // For camera
 #define CAMERA_TYPE_LOOKAT 1
 #define CAMERA_TYPE_FREECAM 2
+#define PLAYER_CAM_OFFSET_X 0.0f
+#define PLAYER_CAM_OFFSET_Y -0.25f
+#define PLAYER_CAM_OFFSET_Z -0.45f
 
 // Proportions and limits
 #define SCALE_CORONA 0.05f
@@ -469,6 +472,9 @@ int main(int argc, char* argv[])
     // float initial_player_x = initial_cam_x;
     // float initial_player_y = initial_cam_y - 1.0f;
     // float initial_player_z = initial_cam_z - 1.5f;
+    // float initial_player_x = initial_cam_x + PLAYER_CAM_OFFSET_X;
+    // float initial_player_y = initial_cam_y + PLAYER_CAM_OFFSET_Y;
+    // float initial_player_z = initial_cam_z + PLAYER_CAM_OFFSET_Z;
     float initial_player_x = initial_cam_x;
     float initial_player_y = initial_cam_y;
     float initial_player_z = initial_cam_z;
@@ -594,21 +600,19 @@ int main(int argc, char* argv[])
         float y_lookAt = r_lookAt*sin(g_CameraPhi_lookAt);
         float z_lookAt = r_lookAt*cos(g_CameraPhi_lookAt)*cos(g_CameraTheta_lookAt);
         float x_lookAt = r_lookAt*cos(g_CameraPhi_lookAt)*sin(g_CameraTheta_lookAt);
+        // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
+        // Veja slides 195-227 e 229-234 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
+        glm::vec4 camera_lookat_l    = glm::vec4(player.pos.x,player.pos.y,player.pos.z,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
+        glm::vec4 camera_position_c_lookAt  = glm::vec4(x_lookAt+camera_lookat_l.x,y_lookAt+camera_lookat_l.y,z_lookAt+camera_lookat_l.z,1.0f); // Ponto "c", centro da câmera
+        // glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
+        glm::vec4 camera_view_vector_lookAt = camera_lookat_l - camera_position_c_lookAt; // Vetor "view", sentido para onde a câmera está virada
+        glm::vec4 camera_up_vector_lookAt   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
 
         // Free Cam
         float r_freeCam = g_CameraDistance_freeCam;
         float x_freeCam = r_freeCam*cos(g_CameraPhi_freeCam)*sin(g_CameraTheta_freeCam);
         float y_freeCam = r_freeCam*sin(g_CameraPhi_freeCam);
         float z_freeCam = r_freeCam*cos(g_CameraPhi_freeCam)*cos(g_CameraTheta_freeCam);
-
-        // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
-        // Veja slides 195-227 e 229-234 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        glm::vec4 camera_position_c_lookAt  = glm::vec4(x_lookAt,y_lookAt,z_lookAt,1.0f); // Ponto "c", centro da câmera
-        // glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
-        glm::vec4 camera_lookat_l    = glm::vec4(player.pos.x,player.pos.y,player.pos.z,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
-        glm::vec4 camera_view_vector_lookAt = camera_lookat_l - camera_position_c_lookAt; // Vetor "view", sentido para onde a câmera está virada
-        glm::vec4 camera_up_vector_lookAt   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
-
         // Free cam
         glm::vec4 camera_view_vector_freeCam = glm::vec4(x_freeCam, y_freeCam, z_freeCam, 0.0f);
         glm::vec4 camera_up_vector_freeCam = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
@@ -1140,9 +1144,9 @@ int main(int argc, char* argv[])
         // Not drawing player yet as we need to fix the rotation
         // We draw the Player
         // Testing player pos
-        // player.pos.x = initial_cam_x + 10.0f;
+        // player.pos.x = initial_cam_x;
         // player.pos.y = initial_cam_y;
-        // player.pos.z = initial_cam_z+15.0f;
+        // player.pos.z = initial_cam_z+0.5f;
         // // Positioning Sphere (0, 0, 0)
         // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y-player.halfFace,player.pos.z-player.halfFace)
         //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
@@ -1192,15 +1196,19 @@ int main(int argc, char* argv[])
         // glUniform1i(object_id_uniform, SPHERE);
         // DrawVirtualObject("sphere");
         // End testing player pos
-        // model = Matrix_Translate(player.pos.x,player.pos.y,player.pos.z)
-        //         // * Matrix_Rotate_Z(z_freeCam)
-        // 		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
-        //         * Matrix_Rotate_X(-g_CameraPhi_freeCam)
-        //         * Matrix_Rotate_Y(M_PI + g_CameraTheta_freeCam)
-        //         ;
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, AIRCRAFT);
-        // DrawVirtualObject(player.objectName.c_str());
+        if (g_CamType == CAMERA_TYPE_LOOKAT) {
+            model = Matrix_Translate(player.pos.x + PLAYER_CAM_OFFSET_X,player.pos.y + PLAYER_CAM_OFFSET_Y,player.pos.z + PLAYER_CAM_OFFSET_Z)
+                    // * Matrix_Rotate_Z(z_freeCam)
+                    * Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
+                    // * Matrix_Rotate_Z(-g_CameraPhi_freeCam)
+                    // * Matrix_Rotate_X(-g_CameraPhi_freeCam)
+                    * Matrix_Rotate_Y(M_PI + g_CameraTheta_freeCam)
+                    ;
+            glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+            glUniform1i(object_id_uniform, AIRCRAFT);
+            DrawVirtualObject(player.objectName.c_str());
+
+        }
 
         // We draw bullets
         for (Bullet &current : liveBullets) {

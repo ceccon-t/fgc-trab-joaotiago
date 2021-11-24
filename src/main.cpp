@@ -472,9 +472,6 @@ int main(int argc, char* argv[])
     // Bullets
     std::vector<Bullet> liveBullets;
 
-    // Destroyable objects (cells and viruses)
-    std::vector<GameObject> liveObjects;
-
     // Live objects
     std::vector<GameObject> liveCells;
     std::vector<GameObject> liveViruses;
@@ -523,7 +520,6 @@ int main(int argc, char* argv[])
             newObject.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
             liveViruses.push_back(newObject);
         }
-        // liveObjects.push_back(newObject);
     }
 
 
@@ -739,7 +735,6 @@ int main(int argc, char* argv[])
         if (!g_Paused) {
 
             // If some objects have been destroyed, we create a new one
-            // int currentObjects = liveObjects.size();
             int currentObjects = liveCells.size() + liveViruses.size();
             if (currentObjects < TOTAL_OBJECTS) {  
                 GameObject newObject;
@@ -763,7 +758,6 @@ int main(int argc, char* argv[])
                     newObject.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
                     liveViruses.push_back(newObject);
                 }
-                // liveObjects.push_back(newObject);
             }
 
             // If player has shot, we create a new bullet
@@ -794,16 +788,6 @@ int main(int argc, char* argv[])
             }
 
             // Check if bullets hit any object
-            // std::set<int> objectsCollided;
-            // for (int i = 0; i < liveBullets.size(); i++) {
-            //     for (int j = 0; j < liveObjects.size(); j++) {
-            //         if (collidedPointSphere(liveObjects[j].pos, liveObjects[j].radius, liveBullets[i].pos)) {
-            //             bulletsToRemove.insert(i);
-            //             objectsCollided.insert(j);
-            //             g_Score += (liveObjects[j].type == VIRUS) ? 50 : -100;
-            //         }
-            //     }
-            // }
             std::set<int> cellsCollided;
             for (int i = 0; i < liveBullets.size(); i++) {
                 for (int j = 0; j < liveCells.size(); j++) {
@@ -837,13 +821,6 @@ int main(int argc, char* argv[])
             }
 
             // Remove objects that have been hit by bullets
-            // std::vector<GameObject> survivorObjects;
-            // for (int i = 0; i < liveObjects.size(); i++) {
-            //     if (objectsCollided.find(i) == objectsCollided.end()) {
-            //         survivorObjects.push_back(liveObjects[i]);
-            //     }
-            // }
-            // liveObjects = survivorObjects;
             if (cellsCollided.size() > 0) {
                 std::vector<GameObject> survivorCells;
                 for (int i = 0; i < liveCells.size(); i++) {
@@ -955,40 +932,6 @@ int main(int argc, char* argv[])
                 }
             }
 
-            // Check for collisions
-            // std::vector<int> objectsToRemove;
-            // std::vector<int> idsMarkedToBeRemoved;
-            // bool marked;
-            // for (size_t i = 0; i < liveObjects.size(); i++) {
-            //     marked = false;
-            //     GameObject curI = liveObjects[i];
-            //     if ( (std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curI.id)) < 1 ) { 
-            //         for (size_t j = i+1; j < liveObjects.size(); j++) {
-            //             GameObject curJ = liveObjects[j];
-            //             if ((std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curJ.id)) < 1) {  
-            //                 glm::vec3 a = glm::vec3(curI.pos.x, curI.pos.y, curI.pos.z);
-            //                 float aR = curI.radius;
-            //                 glm::vec3 b = glm::vec3(curJ.pos.x, curJ.pos.y, curJ.pos.z);
-            //                 float bR = curJ.radius;
-            //                 if (colidiuEsferaEsfera(a, aR, b, bR) && typesEliminate(curI.type, curJ.type)) {
-            //                     idsMarkedToBeRemoved.push_back(curI.id);
-            //                     idsMarkedToBeRemoved.push_back(curJ.id);
-            //                     objectsToRemove.push_back(i);
-            //                     objectsToRemove.push_back(j);
-            //                     g_Score -= 50;
-            //                     marked = true;
-            //                 }
-            //             }
-            //             if (marked) break;
-            //         }
-            //     }
-            // }
-            // int removeds = 0;
-            // for (int toRem : objectsToRemove) {
-            //     int index = toRem-removeds;
-            //     liveObjects.erase(liveObjects.begin() + index);
-            // }
-
             //  We check if any virus has hit a cell
             std::set<int> virusesToRemove;
             std::set<int> cellsToRemove;
@@ -1045,17 +988,7 @@ int main(int argc, char* argv[])
             DrawVirtualObject(current.objectName.c_str());
         }
 
-        // We draw live objects
-        // for (GameObject &current : liveObjects) {
-        //     model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
-        //           * Matrix_Scale(current.scale.x, current.scale.y, current.scale.z)
-        //           * Matrix_Rotate_Z(0.6f)
-        //           * Matrix_Rotate_X(0.2f)
-        //           * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
-        //     glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        //     glUniform1i(object_id_uniform, current.type);
-        //     DrawVirtualObject(current.objectName.c_str());
-        // }
+        // We draw live cells
         for (GameObject &current : liveCells) {
             model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
                   * Matrix_Scale(current.scale.x, current.scale.y, current.scale.z)
@@ -1066,6 +999,7 @@ int main(int argc, char* argv[])
             glUniform1i(object_id_uniform, current.type);
             DrawVirtualObject(current.objectName.c_str());
         }
+        // We draw live viruses
         for (GameObject &current : liveViruses) {
             model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
                   * Matrix_Scale(current.scale.x, current.scale.y, current.scale.z)

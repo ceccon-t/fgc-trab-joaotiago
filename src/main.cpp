@@ -881,7 +881,7 @@ int main(int argc, char* argv[])
                 std::vector<GameObject> survivorCells;
                 for (int i = 0; i < liveCells.size(); i++) {
                     if (cellsCollided.find(i) == cellsCollided.end()) {
-                        liveCells.push_back(liveCells[i]);
+                        survivorCells.push_back(liveCells[i]);
                     }
                 }
                 liveCells = survivorCells;

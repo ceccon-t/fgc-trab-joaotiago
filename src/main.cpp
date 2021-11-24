@@ -402,6 +402,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/ground.jpg"); // TextureImage1
     LoadTextureImage("../../data/aircraft.jpg"); // TextureImage2
     LoadTextureImage("../../data/cell.jpg"); // TextureImage3
+    LoadTextureImage("../../data/sphere.jpg"); // TextureImage4
 
     //Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -1216,7 +1217,7 @@ int main(int argc, char* argv[])
                   * Matrix_Scale(0.3f, 0.3f, 0.3f)
                   ;
             glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-            glUniform1i(object_id_uniform, 11);
+            glUniform1i(object_id_uniform, SPHERE);
             DrawVirtualObject(current.objectName.c_str());
         }
 
@@ -1420,6 +1421,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(program_id, "TextureImage1"), 1);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage2"), 2);
     glUniform1i(glGetUniformLocation(program_id, "TextureImage3"), 3);
+    glUniform1i(glGetUniformLocation(program_id, "TextureImage4"), 4);
     glUseProgram(0);
 }
 

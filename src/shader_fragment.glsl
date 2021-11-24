@@ -33,11 +33,14 @@ uniform int object_id;
 uniform vec4 bbox_min;
 uniform vec4 bbox_max;
 
+
+
 // Variáveis para acesso das imagens de textura
 uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
 uniform sampler2D TextureImage2;
 uniform sampler2D TextureImage3;
+uniform sampler2D TextureImage4;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec3 color;
@@ -107,11 +110,10 @@ void main()
 
         U = (theta + M_PI) / (2 * M_PI);
         V = (phi + M_PI_2) / M_PI;
-        Ka = vec3(0.2,0.2,0.04);
-   		vec3 Kd = texture(TextureImage2, vec2(U,V)).rgb;
+        Ka = vec3(0.02,0.02,0.02);
+   		vec3 Kd = texture(TextureImage4, vec2(U,V)).rgb;
         vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
-        vec3 ambient_term = Ka*Ia; 
-        color = lambert_diffuse_term + ambient_term;
+        color = lambert_diffuse_term;
         color = pow(color, vec3(1.0,1.0,1.0)/2.2);
     }
     else if ( object_id == CELL )
@@ -130,13 +132,14 @@ void main()
         U = texcoords.x;
         V = texcoords.y;
         vec3 Kd = texture(TextureImage1, vec2(U,V)).rgb;
-        Ks = vec3(0.8,0.8,0.8); 	 //refletancia especular da superf
+        Ks = vec3(0.5,0.5,0.5); 	 //refletancia especular da superf
         Ka = vec3(0.2,0.2,0.2);  	//refletancia ambiente da superf
-        q = 15.0;
-        //h = 
+        q = 25.0;
+        vec4 sum = v+l;
+        vec4 h = (sum) / sqrt(pow(sum.x,2)+pow(sum.y,2)+pow(sum.z,2));
         vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
         vec3 ambient_term = Ka*Ia;
-        vec3 phong_specular_term = Ks*I*pow(max(0,dot(r,v)),q)*max(0,dot(n,l)); 
+        vec3 phong_specular_term = Ks*I*pow(max(0,dot(n,h)),q); 
         color = lambert_diffuse_term + ambient_term + phong_specular_term;
         color = pow(color, vec3(1.0,1.0,1.0)/2.2);
         
@@ -149,9 +152,11 @@ void main()
         Ks = vec3(0.8,0.8,0.8); 		 //refletancia especular da superf
         Ka = vec3(0.5,0.5,0.5);		//refletancia ambiente da superf
         q = 15.0;
+        vec4 sum = v+l;
+        vec4 h = (sum) / sqrt(pow(sum.x,2)+pow(sum.y,2)+pow(sum.z,2));
         vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
         vec3 ambient_term = Ka*Ia;
-        vec3 phong_specular_term = Ks*I*pow(max(0,dot(r,v)),q)*max(0,dot(n,l));
+        vec3 phong_specular_term = Ks*I*pow(max(0,dot(n,h)),q); 
         color = lambert_diffuse_term + ambient_term + phong_specular_term;
         color = pow(color, vec3(1.0,1.0,1.0)/2.2);
         

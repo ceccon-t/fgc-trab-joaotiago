@@ -34,10 +34,6 @@ bool collidedSphereCube(glm::vec3 &centerSphere, float radiusSphere, glm::vec3 &
 
     glm::vec3 direction = centerCube - centerSphere;
     direction = direction / normVec3(direction);
-    // glm::vec4 vec4Direction = glm::vec4(direction.x, direction.y, direction.z, 0.0f);
-    // vec4Direction = vec4Direction / norm(vec4Direction);
-    // vec4Direction *= radiusSphere; // we calculate vector towards closest point scaled by the radius
-
 
     // we get the point on the sphere that is the closest to the cube
     glm::vec3 closestPoint = glm::vec3(
@@ -61,7 +57,3 @@ bool collidedSphereCube(glm::vec3 &centerSphere, float radiusSphere, glm::vec3 &
 
     return collided;
 }
-
-
-// if need to find center of sphere from origin of bounding box, try: vec3( x (+-) radius, y (+-) radius, z (+-) radius), I *think* some variation of this should work
-

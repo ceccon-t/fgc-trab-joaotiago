@@ -51,9 +51,9 @@ bool collidedSphereCube(glm::vec3 &centerSphere, float radiusSphere, glm::vec3 &
     float zmin = centerCube.z - halfFaceCube;
     float zmax = centerCube.z + halfFaceCube;
 
-    collided = (centerSphere.x >= xmin && centerSphere.x <= xmax)
-                && (centerSphere.y >= ymin && centerSphere.y <= ymax)
-                && (centerSphere.z >= zmin && centerSphere.z <= zmax);
+    collided = (closestPoint.x >= xmin && closestPoint.x <= xmax)
+                && (closestPoint.y >= ymin && closestPoint.y <= ymax)
+                && (closestPoint.z >= zmin && closestPoint.z <= zmax);
 
     return collided;
 }

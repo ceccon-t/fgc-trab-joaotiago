@@ -615,36 +615,48 @@ int main(int argc, char* argv[])
 
                 // For free cam, apply movement to camera and player together
                 camera_position_c_freeCam  += (-camera_w_vector) * speed_freeCam * delta_time;
-                player.pos.x += displacement.x;
-                player.pos.y += displacement.y;
-                player.pos.z += displacement.z;
+                camera_position_c_freeCam.x = constrained(MIN_X+0.5f, MAX_X-0.5f, camera_position_c_freeCam.x);
+                camera_position_c_freeCam.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, camera_position_c_freeCam.y);
+                camera_position_c_freeCam.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, camera_position_c_freeCam.z);
+                player.pos.x = constrained(MIN_X+0.5f, MAX_X-0.5f, player.pos.x + displacement.x);
+                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.x + displacement.y);
+                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.x + displacement.z);
             } 
             if (g_KeyAPressed) {
                 displacement = (-camera_u_vector) * speed_freeCam * delta_time;
 
                 // For free cam, apply movement to camera and player together
                 camera_position_c_freeCam  += displacement; 
-                player.pos.x += displacement.x;
-                player.pos.y += displacement.y;
-                player.pos.z += displacement.z;
+                camera_position_c_freeCam.x = constrained(MIN_X+0.5f, MAX_X-0.5f, camera_position_c_freeCam.x);
+                camera_position_c_freeCam.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, camera_position_c_freeCam.y);
+                camera_position_c_freeCam.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, camera_position_c_freeCam.z);
+                player.pos.x = constrained(MIN_X+0.5f, MAX_X-0.5f, player.pos.x + displacement.x);
+                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.x + displacement.y);
+                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.x + displacement.z);
             } 
             if (g_KeySPressed) {
                 displacement = camera_w_vector * speed_freeCam * delta_time;
 
                 // For free cam, apply movement to camera and player together
                 camera_position_c_freeCam  += displacement; 
-                player.pos.x += displacement.x;
-                player.pos.y += displacement.y;
-                player.pos.z += displacement.z;
+                camera_position_c_freeCam.x = constrained(MIN_X+0.5f, MAX_X-0.5f, camera_position_c_freeCam.x);
+                camera_position_c_freeCam.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, camera_position_c_freeCam.y);
+                camera_position_c_freeCam.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, camera_position_c_freeCam.z);
+                player.pos.x = constrained(MIN_X+0.5f, MAX_X-0.5f, player.pos.x + displacement.x);
+                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.x + displacement.y);
+                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.x + displacement.z);
             } 
             if (g_KeyDPressed) {
                 displacement = camera_u_vector * speed_freeCam * delta_time; 
 
                 // For free cam, apply movement to camera and player together
                 camera_position_c_freeCam  += displacement;
-                player.pos.x += displacement.x;
-                player.pos.y += displacement.y;
-                player.pos.z += displacement.z;
+                camera_position_c_freeCam.x = constrained(MIN_X+0.5f, MAX_X-0.5f, camera_position_c_freeCam.x);
+                camera_position_c_freeCam.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, camera_position_c_freeCam.y);
+                camera_position_c_freeCam.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, camera_position_c_freeCam.z);
+                player.pos.x = constrained(MIN_X+0.5f, MAX_X-0.5f, player.pos.x + displacement.x);
+                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.x + displacement.y);
+                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.x + displacement.z);
             } 
         }
 

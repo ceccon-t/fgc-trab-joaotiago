@@ -81,6 +81,8 @@
 #define RADIUS_CORONA 1.8f
 #define SCALE_CELL 1.4f
 #define RADIUS_CELL 1.8f
+#define PLAYER_SCALE 0.4f
+#define HALF_FACE_PLAYER 1.2f
 #define MIN_X -100.0f
 #define MAX_X 100.0f
 #define MIN_Y 0.0f
@@ -92,7 +94,9 @@
 #define TOTAL_OBJECTS 15
 #define MINIMUM_ENEMIES TOTAL_OBJECTS / 3
 #define VIRUS_DESTROYED_REWARD 50
+#define VIRUS_HITTING_PLAYER_REWARD -100
 #define CELL_DESTROYED_REWARD -100
+#define CELL_HITTING_PLAYER_REWARD -100
 #define PROB_VIRUS_WILL_NOT_SEARCH 0.09f
 #define VIRUS_RADAR_RANGE 20*RADIUS_CORONA
 
@@ -206,7 +210,7 @@ struct Player {
     std::string objectName;
     glm::vec3 pos;
     glm::vec3 scale;
-    int size;
+    float halfFace;
 };
 
 // Structure to store information about player bullets
@@ -310,8 +314,6 @@ float constrained(float min, float max, float tentative);
 float validX(float tentative);
 float validY(float tentative);
 float validZ(float tentative);
-
-// Collision functions (move them later to separate file)
 
 int main(int argc, char* argv[])
 {
@@ -464,9 +466,12 @@ int main(int argc, char* argv[])
     float initial_cam_x = 9.0f;
     float initial_cam_y = 9.0f;
     float initial_cam_z = -9.0f;
+    // float initial_player_x = initial_cam_x;
+    // float initial_player_y = initial_cam_y - 1.0f;
+    // float initial_player_z = initial_cam_z - 1.5f;
     float initial_player_x = initial_cam_x;
-    float initial_player_y = initial_cam_y - 1.0f;
-    float initial_player_z = initial_cam_z - 1.5f;
+    float initial_player_y = initial_cam_y;
+    float initial_player_z = initial_cam_z;
 
     // Variables to control camera movement
     glm::vec4 camera_position_c_freeCam  = glm::vec4(initial_cam_x,initial_cam_y,initial_cam_z,1.0f); // Ponto "c", centro da câmera
@@ -475,8 +480,8 @@ int main(int argc, char* argv[])
     Player player;
     player.objectName = "aircraft";
     player.pos = glm::vec3(initial_player_x, initial_player_y, initial_player_z);
-    player.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    player.size = 1;
+    player.scale = glm::vec3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE);
+    player.halfFace = HALF_FACE_PLAYER;
 
     // Bullets
     std::vector<Bullet> liveBullets;
@@ -554,6 +559,17 @@ int main(int argc, char* argv[])
         }
     }
 
+    // GameObject testVirus;
+    // testVirus.id = getNextObjectId();
+    // testVirus.radius = 0.9;
+    // testVirus.pos = glm::vec3(initial_cam_x-10.0f, initial_cam_y, initial_cam_z+15.0f);
+    // testVirus.movementType = MOVEMENT_LINEAR;
+    // testVirus.velocity = glm::vec3(1.0f, 0.0f, 0.0f);
+    // testVirus.objectName = "cell";
+    // testVirus.type = CELL;
+    // testVirus.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+    // liveCells.push_back(testVirus);
+
     // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
@@ -623,8 +639,8 @@ int main(int argc, char* argv[])
                 camera_position_c_freeCam.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, camera_position_c_freeCam.y);
                 camera_position_c_freeCam.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, camera_position_c_freeCam.z);
                 player.pos.x = constrained(MIN_X+0.5f, MAX_X-0.5f, player.pos.x + displacement.x);
-                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.x + displacement.y);
-                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.x + displacement.z);
+                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.y + displacement.y);
+                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.z + displacement.z);
             } 
             if (g_KeyAPressed) {
                 displacement = (-camera_u_vector) * speed_freeCam * delta_time;
@@ -635,8 +651,8 @@ int main(int argc, char* argv[])
                 camera_position_c_freeCam.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, camera_position_c_freeCam.y);
                 camera_position_c_freeCam.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, camera_position_c_freeCam.z);
                 player.pos.x = constrained(MIN_X+0.5f, MAX_X-0.5f, player.pos.x + displacement.x);
-                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.x + displacement.y);
-                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.x + displacement.z);
+                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.y + displacement.y);
+                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.z + displacement.z);
             } 
             if (g_KeySPressed) {
                 displacement = camera_w_vector * speed_freeCam * delta_time;
@@ -647,8 +663,8 @@ int main(int argc, char* argv[])
                 camera_position_c_freeCam.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, camera_position_c_freeCam.y);
                 camera_position_c_freeCam.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, camera_position_c_freeCam.z);
                 player.pos.x = constrained(MIN_X+0.5f, MAX_X-0.5f, player.pos.x + displacement.x);
-                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.x + displacement.y);
-                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.x + displacement.z);
+                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.y + displacement.y);
+                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.z + displacement.z);
             } 
             if (g_KeyDPressed) {
                 displacement = camera_u_vector * speed_freeCam * delta_time; 
@@ -659,11 +675,10 @@ int main(int argc, char* argv[])
                 camera_position_c_freeCam.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, camera_position_c_freeCam.y);
                 camera_position_c_freeCam.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, camera_position_c_freeCam.z);
                 player.pos.x = constrained(MIN_X+0.5f, MAX_X-0.5f, player.pos.x + displacement.x);
-                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.x + displacement.y);
-                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.x + displacement.z);
+                player.pos.y = constrained(MIN_Y+0.5f, MAX_Y-0.5f, player.pos.y + displacement.y);
+                player.pos.z = constrained(MIN_Z+0.5f, MAX_Z-0.5f, player.pos.z + displacement.z);
             } 
         }
-
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slides 2-14, 184-190 e 236-242 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
@@ -1093,11 +1108,101 @@ int main(int argc, char* argv[])
                 liveCells = survivorCells;
             }
 
+            //  We check if any virus has hit the player
+            std::set<int> virusesHittingPlayer;
+            for (size_t i = 0; i < liveViruses.size(); i++) {
+                if (collidedSphereCube(liveViruses[i].pos, liveViruses[i].radius, player.pos, player.halfFace)) {
+                    virusesHittingPlayer.insert(i);
+                    g_Score += VIRUS_HITTING_PLAYER_REWARD;
+                    break;
+                }
+            }
+            if (virusesHittingPlayer.size() > 0) {
+                std::vector<GameObject> survivorViruses;
+                for (size_t i = 0; i < liveViruses.size(); i++) {
+                    if (virusesHittingPlayer.find(i) == virusesHittingPlayer.end()) {
+                        survivorViruses.push_back(liveViruses[i]);
+                    }
+                }
+                liveViruses = survivorViruses;
+            }
+            //  We check if any cell has hit the player
+            std::set<int> cellsHittingPlayer;
+            for (size_t i = 0; i < liveCells.size(); i++) {
+                if (collidedSphereCube(liveCells[i].pos, liveCells[i].radius, player.pos, player.halfFace)) {
+                    cellsHittingPlayer.insert(i);
+                    g_Score += CELL_HITTING_PLAYER_REWARD;
+                    break;
+                }
+            }
+            if (cellsHittingPlayer.size() > 0) {
+                std::vector<GameObject> survivorCells;
+                for (size_t i = 0; i < liveCells.size(); i++) {
+                    if (cellsHittingPlayer.find(i) == cellsHittingPlayer.end()) {
+                        survivorCells.push_back(liveCells[i]);
+                    }
+                }
+                liveCells = survivorCells;
+            }
+
         }
         // MOVEMENT AND GAME LOGIC END
 
         // Not drawing player yet as we need to fix the rotation
-        // // We draw the Player
+        // We draw the Player
+        // Testing player pos
+        // player.pos.x = initial_cam_x + 10.0f;
+        // player.pos.y = initial_cam_y;
+        // player.pos.z = initial_cam_z+15.0f;
+        // // Positioning Sphere (0, 0, 0)
+        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y-player.halfFace,player.pos.z-player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (MAX, 0, 0)
+        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y-player.halfFace,player.pos.z-player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (MAX, MAX, 0)
+        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y+player.halfFace,player.pos.z-player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (0, MAX, 0)
+        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y+player.halfFace,player.pos.z-player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (0, 0, MAX)
+        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y-player.halfFace,player.pos.z+player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (MAX, 0,  MAX)
+        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y-player.halfFace,player.pos.z+player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (MAX, MAX, MAX)
+        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y+player.halfFace,player.pos.z+player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (0, MAX, MAX)
+        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y+player.halfFace,player.pos.z+player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // End testing player pos
         // model = Matrix_Translate(player.pos.x,player.pos.y,player.pos.z)
         //         // * Matrix_Rotate_Z(z_freeCam)
         // 		* Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
@@ -2332,7 +2437,7 @@ void TextRendering_ShowScore(GLFWwindow* window, int score){
     float lineheight = TextRendering_LineHeight(window);
     float charwidth = TextRendering_CharWidth(window);
 
-    std::string strScore = std::to_string(score);
+    std::string strScore = std::to_string(g_Score);
     std::string output = "Score: " + strScore;
 
     TextRendering_PrintString(window, output, 1.0f-25*charwidth, -1.0f+2*lineheight/10, 2.0f);

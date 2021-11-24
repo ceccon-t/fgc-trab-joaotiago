@@ -208,3 +208,55 @@
         // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         // glUniform1i(object_id_uniform, SPHERE);
         // DrawVirtualObject("sphere");
+
+
+        // POSITIONING SPHERES TO HELP PLAYER SCALE
+        // // Positioning Sphere (0, 0, 0)
+        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y-player.halfFace,player.pos.z-player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (MAX, 0, 0)
+        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y-player.halfFace,player.pos.z-player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (MAX, MAX, 0)
+        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y+player.halfFace,player.pos.z-player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (0, MAX, 0)
+        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y+player.halfFace,player.pos.z-player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (0, 0, MAX)
+        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y-player.halfFace,player.pos.z+player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (MAX, 0,  MAX)
+        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y-player.halfFace,player.pos.z+player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (MAX, MAX, MAX)
+        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y+player.halfFace,player.pos.z+player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+        // // Positioning Sphere (0, MAX, MAX)
+        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y+player.halfFace,player.pos.z+player.halfFace)
+        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
+        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        // glUniform1i(object_id_uniform, SPHERE);
+        // DrawVirtualObject("sphere");
+

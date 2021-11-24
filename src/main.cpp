@@ -559,17 +559,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    // GameObject testVirus;
-    // testVirus.id = getNextObjectId();
-    // testVirus.radius = 0.9;
-    // testVirus.pos = glm::vec3(initial_cam_x-10.0f, initial_cam_y, initial_cam_z+15.0f);
-    // testVirus.movementType = MOVEMENT_LINEAR;
-    // testVirus.velocity = glm::vec3(1.0f, 0.0f, 0.0f);
-    // testVirus.objectName = "cell";
-    // testVirus.type = CELL;
-    // testVirus.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
-    // liveCells.push_back(testVirus);
-
     // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {

@@ -919,7 +919,10 @@ int main(int argc, char* argv[])
             }
 
             // Update position of every cell 
-            for (GameObject &current : liveCells) {
+            std::set<int> cellsGoneAway;
+            // for (GameObject &current : liveCells) {
+            for (int i = 0; i < liveCells.size(); i++) {
+                GameObject &current = liveCells[i];
                 if (current.movementType == MOVEMENT_LINEAR) {
                     current.pos.x += current.velocity.x * 0.01f;
                     current.pos.y += current.velocity.y * 0.01f;
@@ -929,26 +932,28 @@ int main(int argc, char* argv[])
                         current.bezierT = 0.0f;
 
                         if (current.bezierP4.z > (MAX_Z - 1.5 * MOVEMENT_DELTA_Z)) {
-                            // We move object back to start of scene
-                            current.bezierP4 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
+                            // We remove object from game
+                            // current.bezierP4 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
+                            cellsGoneAway.insert(i);
+                        } else {
+                            float newX = current.bezierP4.x;
+                            float newY = current.bezierP4.y;
+                            float newZ = current.bezierP4.z;
+                            current.bezierP1 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
+                            newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+                            newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+                            newZ += generateRandomFloatInRange(0.01f, MOVEMENT_DELTA_Z/3);
+                            current.bezierP2 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
+                            newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+                            newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+                            newZ += generateRandomFloatInRange(0.01f, 2*MOVEMENT_DELTA_Z/3);
+                            current.bezierP3 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
+                            newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+                            newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+                            newZ += generateRandomFloatInRange(0.01f, MOVEMENT_DELTA_Z);
+                            current.bezierP4 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
                         }
 
-                        float newX = current.bezierP4.x;
-                        float newY = current.bezierP4.y;
-                        float newZ = current.bezierP4.z;
-                        current.bezierP1 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
-                        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
-                        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
-                        newZ += generateRandomFloatInRange(0.01f, MOVEMENT_DELTA_Z/3);
-                        current.bezierP2 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
-                        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
-                        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
-                        newZ += generateRandomFloatInRange(0.01f, 2*MOVEMENT_DELTA_Z/3);
-                        current.bezierP3 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
-                        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
-                        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
-                        newZ += generateRandomFloatInRange(0.01f, MOVEMENT_DELTA_Z);
-                        current.bezierP4 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
                     }
 
                     float b03 = pow((1.0f - current.bezierT), 3);
@@ -963,6 +968,15 @@ int main(int argc, char* argv[])
                     current.bezierT += delta_time * TIME_MOVEMENT_SCALING_FACTOR;
 
                 }
+            }
+            if (cellsGoneAway.size() > 0) {
+                std::vector<GameObject> remainingCells;
+                for (int i = 0; i < liveCells.size(); i++) {
+                    if (cellsGoneAway.find(i) == cellsGoneAway.end()) {
+                        remainingCells.push_back(liveCells[i]);
+                    }
+                }
+                liveCells = remainingCells;
             }
 
             // Update position of every virus 

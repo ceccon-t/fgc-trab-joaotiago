@@ -84,7 +84,7 @@
 #define MIN_X -100.0f
 #define MAX_X 100.0f
 #define MIN_Y 0.0f
-#define MAX_Y 200.0f
+#define MAX_Y 100.0f
 #define MIN_Z -100.0f
 #define MAX_Z 100.0f
 
@@ -698,13 +698,13 @@ int main(int argc, char* argv[])
 
         // We create the map Boundaries
         //Ground
-        model = Matrix_Translate(0.0f,0.0f,0.0f);
+        model = Matrix_Translate(0.0f,MIN_Y,0.0f);
         model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(object_id_uniform, PLANE);
         DrawVirtualObject("ground");
         //Ceilling
-        model = Matrix_Translate(0.0f,200.0f,0.0f) 
+        model = Matrix_Translate(0.0f,MAX_Y,0.0f) 
         		* Matrix_Rotate_Z(M_PI);
         model = model * Matrix_Scale(100.f, 100.0f, 100.0f);
         glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));

@@ -72,123 +72,73 @@ void main()
 
     // Vetor que define o sentido da câmera em relação ao ponto atual.
     vec4 v = normalize(camera_position - p);
+    // Vetor que define o sentido da reflexão especular ideal.
+    vec4 r = -l + 2*n*dot(n,l); 
 
     // Coordenadas de textura U e V
     float U = 0.0;
     float V = 0.0;
+    //
+    vec3 I = vec3(1,1,1); // espectro da fonte de luz
+    vec3 Ia = vec3(0.15,0.15,0.15); //  espectro da luz ambiente
+    
+    vec3 Ks; // Refletância especular
+    vec3 Ka; // Refletância ambiente
+    float q; // Expoente especular para o modelo de iluminação de Phong
 
-    if ( object_id == SPHERE )
+
+    if ( object_id == VIRUS )
     {
-        // PREENCHA AQUI as coordenadas de textura da esfera, computadas com
-        // projeção esférica EM COORDENADAS DO MODELO. Utilize como referência
-        // o slides 134-150 do documento Aula_20_Mapeamento_de_Texturas.pdf.
-        // A esfera que define a projeção deve estar centrada na posição
-        // "bbox_center" definida abaixo.
-
-        // Você deve utilizar:
-        //   função 'length( )' : comprimento Euclidiano de um vetor
-        //   função 'atan( , )' : arcotangente. Veja https://en.wikipedia.org/wiki/Atan2.
-        //   função 'asin( )'   : seno inverso.
-        //   constante M_PI
-        //   variável position_model
-
-        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
-
-        // Page 150, slides Aula 20
-        float theta = atan(position_model.x, position_model.z);
-        float phi = asin(position_model.y / length(bbox_center - position_model));
-
-        U = (theta + M_PI) / (2 * M_PI);
-        V = (phi + M_PI_2) / M_PI;
-   		vec3 Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
-        float lambert = max(0,dot(n,l));
-        color = Kd0 * lambert;
-        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
-    }
-    else if ( object_id == VIRUS )
-    {
-
         U = texcoords.x;
         V = texcoords.y;
-        vec3 Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
-        float lambert = max(0,dot(n,l));
-        color = Kd0 * lambert;
+        Ka = vec3(0.04,0.2,0.2);
+        vec3 Kd = texture(TextureImage0, vec2(U,V)).rgb;
+       	vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
+        vec3 ambient_term = Ka*Ia; 
+        color = lambert_diffuse_term + ambient_term;
         color = pow(color, vec3(1.0,1.0,1.0)/2.2);
     }
     else if ( object_id == CELL )
     {
         U = texcoords.x;
         V = texcoords.y;
-        vec3 Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
-        float lambert = max(0,dot(n,l));
-        color = Kd0 * lambert;
-        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
-    }
-    else if ( object_id == BUNNY )
-    {
-        // PREENCHA AQUI as coordenadas de textura do coelho, computadas com
-        // projeção planar XY em COORDENADAS DO MODELO. Utilize como referência
-        // o slides 99-104 do documento Aula_20_Mapeamento_de_Texturas.pdf,
-        // e também use as variáveis min*/max* definidas abaixo para normalizar
-        // as coordenadas de textura U e V dentro do intervalo [0,1]. Para
-        // tanto, veja por exemplo o mapeamento da variável 'p_v' utilizando
-        // 'h' no slides 158-160 do documento Aula_20_Mapeamento_de_Texturas.pdf.
-        // Veja também a Questão 4 do Questionário 4 no Moodle.
-
-        float minx = bbox_min.x;
-        float maxx = bbox_max.x;
-
-        float miny = bbox_min.y;
-        float maxy = bbox_max.y;
-
-        float minz = bbox_min.z;
-        float maxz = bbox_max.z;
-
-        // Page 6, slides Aula 22 - Laboratorio 5
-        U = (position_model.x - minx) / (maxx - minx);
-        V = (position_model.y - miny) / (maxy - miny);
-        vec3 Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
-        float lambert = max(0,dot(n,l));
-        color = Kd0 * lambert;
-        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
-
+        Ka = vec3(0.2,0.2,0.04);
+        vec3 Kd = texture(TextureImage3, vec2(U,V)).rgb;
+        vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
+        vec3 ambient_term = Ka*Ia; 
+        color = lambert_diffuse_term + ambient_term;
+        color = pow(color, vec3(1.0,1.0,1.0)/2.2); 
     }
     else if ( object_id == PLANE )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
-        vec3 Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
-        float lambert = max(0,dot(n,l));
-        color = Kd0 * lambert;
+        vec3 Kd = texture(TextureImage1, vec2(U,V)).rgb;
+        Ks = vec3(0.8,0.8,0.8); 	 //refletancia especular da superf
+        Ka = vec3(0.2,0.2,0.2);  	//refletancia ambiente da superf
+        q = 15.0;
+        vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
+        vec3 ambient_term = Ka*Ia;
+        vec3 phong_specular_term = Ks*I*pow(max(0,dot(r,v)),q)*max(0,dot(n,l)); 
+        color = lambert_diffuse_term + ambient_term + phong_specular_term;
         color = pow(color, vec3(1.0,1.0,1.0)/2.2);
         
     }
     else if ( object_id == AIRCRAFT )
     {
-        // Coordenadas de textura do plano, obtidas do arquivo OBJ.
         U = texcoords.x;
         V = texcoords.y;
-        vec3 Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
-        float lambert = max(0,dot(n,l));
-        color = Kd0 * lambert;
+        vec3 Kd = texture(TextureImage2, vec2(U,V)).rgb;
+        Ks = vec3(0.8,0.8,0.8); 		 //refletancia especular da superf
+        Ka = vec3(0.2,0.2,0.2);		//refletancia ambiente da superf
+        q = 15.0;
+        vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
+        vec3 ambient_term = Ka*Ia;
+        vec3 phong_specular_term = Ks*I*pow(max(0,dot(r,v)),q)*max(0,dot(n,l));
+        color = lambert_diffuse_term + ambient_term + phong_specular_term;
         color = pow(color, vec3(1.0,1.0,1.0)/2.2);
         
     }
-	
-	/*
-		// Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-		vec3 Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
-		vec3 Kd1 = texture(TextureImage1, vec2(U,V)).rgb;
 
-		// Equação de Iluminação
-		float lambert = max(0,dot(n,l));
-
-		color = Kd0 * (lambert + 0.01)
-		            + Kd1 * (max(0 , 0.2 - lambert));
-
-		// Cor final com correção gamma, considerando monitor sRGB.
-		color = pow(color, vec3(1.0,1.0,1.0)/2.2);
-	*/
 } 
 

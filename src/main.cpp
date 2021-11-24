@@ -77,7 +77,7 @@
 #define CAMERA_TYPE_FREECAM 2
 
 // Proportions and limits
-#define SCALE_CORONA 0.05f
+#define SCALE_CORONA 0.025f
 #define SCALE_CELL 0.7f
 #define MIN_X -100.0f
 #define MAX_X 100.0f
@@ -88,6 +88,8 @@
 
 // Misc
 #define TOTAL_OBJECTS 15
+#define VIRUS_DESTROYED_REWARD 50
+#define CELL_DESTROYED_REWARD -100
 
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
@@ -473,6 +475,10 @@ int main(int argc, char* argv[])
     // Destroyable objects (cells and viruses)
     std::vector<GameObject> liveObjects;
 
+    // Live objects
+    std::vector<GameObject> liveCells;
+    std::vector<GameObject> liveViruses;
+
     // RANDOM SEED
     std::srand(time(NULL));
 
@@ -510,13 +516,16 @@ int main(int argc, char* argv[])
             newObject.objectName = "cell";
             newObject.type = CELL;
             newObject.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+            liveCells.push_back(newObject);
         } else {
             newObject.objectName = "corona";
             newObject.type = VIRUS;
             newObject.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
+            liveViruses.push_back(newObject);
         }
-        liveObjects.push_back(newObject);
+        // liveObjects.push_back(newObject);
     }
+
 
     // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
@@ -730,7 +739,9 @@ int main(int argc, char* argv[])
         if (!g_Paused) {
 
             // If some objects have been destroyed, we create a new one
-            if (liveObjects.size() < TOTAL_OBJECTS) {  
+            // int currentObjects = liveObjects.size();
+            int currentObjects = liveCells.size() + liveViruses.size();
+            if (currentObjects < TOTAL_OBJECTS) {  
                 GameObject newObject;
                 newObject.id = getNextObjectId();
                 newObject.radius = 0.9f;
@@ -745,12 +756,14 @@ int main(int argc, char* argv[])
                     newObject.objectName = "cell";
                     newObject.type = CELL;
                     newObject.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
+                    liveCells.push_back(newObject);
                 } else {
                     newObject.objectName = "corona";
                     newObject.type = VIRUS;
                     newObject.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
+                    liveViruses.push_back(newObject);
                 }
-                liveObjects.push_back(newObject);
+                // liveObjects.push_back(newObject);
             }
 
             // If player has shot, we create a new bullet
@@ -781,37 +794,122 @@ int main(int argc, char* argv[])
             }
 
             // Check if bullets hit any object
-            std::set<int> objectsCollided;
+            // std::set<int> objectsCollided;
+            // for (int i = 0; i < liveBullets.size(); i++) {
+            //     for (int j = 0; j < liveObjects.size(); j++) {
+            //         if (collidedPointSphere(liveObjects[j].pos, liveObjects[j].radius, liveBullets[i].pos)) {
+            //             bulletsToRemove.insert(i);
+            //             objectsCollided.insert(j);
+            //             g_Score += (liveObjects[j].type == VIRUS) ? 50 : -100;
+            //         }
+            //     }
+            // }
+            std::set<int> cellsCollided;
             for (int i = 0; i < liveBullets.size(); i++) {
-                for (int j = 0; j < liveObjects.size(); j++) {
-                    if (collidedPointSphere(liveObjects[j].pos, liveObjects[j].radius, liveBullets[i].pos)) {
+                for (int j = 0; j < liveCells.size(); j++) {
+                    if (collidedPointSphere(liveCells[j].pos, liveCells[j].radius, liveBullets[i].pos)) {
                         bulletsToRemove.insert(i);
-                        objectsCollided.insert(j);
-                        g_Score += (liveObjects[j].type == VIRUS) ? 50 : -100;
+                        cellsCollided.insert(j);
+                        g_Score += CELL_DESTROYED_REWARD;
+                    }
+                }
+            }
+            std::set<int> virusesCollided;
+            for (int i = 0; i < liveBullets.size(); i++) {
+                for (int j = 0; j < liveViruses.size(); j++) {
+                    if (collidedPointSphere(liveViruses[j].pos, liveViruses[j].radius, liveBullets[i].pos)) {
+                        bulletsToRemove.insert(i);
+                        virusesCollided.insert(j);
+                        g_Score += VIRUS_DESTROYED_REWARD;
                     }
                 }
             }
 
             // Remove bullets that either have hit or outlived their times
-            std::vector<Bullet> survivorBullets;
-            for (int i = 0; i < liveBullets.size(); i++) {
-                if (bulletsToRemove.find(i) == bulletsToRemove.end()) {
-                    survivorBullets.push_back(liveBullets[i]);
+            if (bulletsToRemove.size() > 0) {
+                std::vector<Bullet> survivorBullets;
+                for (int i = 0; i < liveBullets.size(); i++) {
+                    if (bulletsToRemove.find(i) == bulletsToRemove.end()) {
+                        survivorBullets.push_back(liveBullets[i]);
+                    }
                 }
+                liveBullets = survivorBullets;
             }
-            liveBullets = survivorBullets;
 
             // Remove objects that have been hit by bullets
-            std::vector<GameObject> survivorObjects;
-            for (int i = 0; i < liveObjects.size(); i++) {
-                if (objectsCollided.find(i) == objectsCollided.end()) {
-                    survivorObjects.push_back(liveObjects[i]);
+            // std::vector<GameObject> survivorObjects;
+            // for (int i = 0; i < liveObjects.size(); i++) {
+            //     if (objectsCollided.find(i) == objectsCollided.end()) {
+            //         survivorObjects.push_back(liveObjects[i]);
+            //     }
+            // }
+            // liveObjects = survivorObjects;
+            if (cellsCollided.size() > 0) {
+                std::vector<GameObject> survivorCells;
+                for (int i = 0; i < liveCells.size(); i++) {
+                    if (cellsCollided.find(i) == cellsCollided.end()) {
+                        liveCells.push_back(liveCells[i]);
+                    }
                 }
+                liveCells = survivorCells;
             }
-            liveObjects = survivorObjects;
+            if (virusesCollided.size() > 0) {
+                std::vector<GameObject> survivorViruses;
+                for (int i = 0; i < liveViruses.size(); i++) {
+                    if (virusesCollided.find(i) == virusesCollided.end()) {
+                        survivorViruses.push_back(liveViruses[i]);
+                    }
+                }
+                liveViruses = survivorViruses;
+            }
 
             // Update position of every object 
-            for (GameObject &current : liveObjects) {
+            for (GameObject &current : liveCells) {
+                if (current.movementType == MOVEMENT_LINEAR) {
+                    current.pos.x += current.velocity.x * 0.01f;
+                    current.pos.y += current.velocity.y * 0.01f;
+                    current.pos.z += current.velocity.z * 0.01f;
+                } else if (current.movementType == MOVEMENT_BEZIER) {
+                    if (current.bezierT >= 1.0f) {
+                        current.bezierT = 0.0f;
+
+                        if (current.bezierP4.z > (MAX_Z - 1.5 * MOVEMENT_DELTA_Z)) {
+                            // We move object back to start of scene
+                            current.bezierP4 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
+                        }
+
+                        float newX = current.bezierP4.x;
+                        float newY = current.bezierP4.y;
+                        float newZ = current.bezierP4.z;
+                        current.bezierP1 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
+                        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+                        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+                        newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z/3);
+                        current.bezierP2 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
+                        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+                        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+                        newZ += generateRandomFloatInRange(0.0f, 2*MOVEMENT_DELTA_Z/3);
+                        current.bezierP3 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
+                        newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
+                        newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
+                        newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z);
+                        current.bezierP4 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
+                    }
+
+                    float b03 = pow((1.0f - current.bezierT), 3);
+                    float b13 = 3*current.bezierT*pow((1-current.bezierT), 2);
+                    float b23 = 3*pow(current.bezierT, 2)*(1-current.bezierT);
+                    float b33 = pow(current.bezierT, 3);
+
+                    current.pos.x = validX( b03*(current.bezierP1.x) + b13*(current.bezierP2.x) + b23*(current.bezierP3.x) +b33*(current.bezierP4.x) );
+                    current.pos.y = validY( b03*(current.bezierP1.y) + b13*(current.bezierP2.y) + b23*(current.bezierP3.y) +b33*(current.bezierP4.y) );
+                    current.pos.z = validZ( b03*(current.bezierP1.z) + b13*(current.bezierP2.z) + b23*(current.bezierP3.z) +b33*(current.bezierP4.z) );
+
+                    current.bezierT += delta_time * TIME_MOVEMENT_SCALING_FACTOR;
+
+                }
+            }
+            for (GameObject &current : liveViruses) {
                 if (current.movementType == MOVEMENT_LINEAR) {
                     current.pos.x += current.velocity.x * 0.01f;
                     current.pos.y += current.velocity.y * 0.01f;
@@ -858,37 +956,68 @@ int main(int argc, char* argv[])
             }
 
             // Check for collisions
-            std::vector<int> objectsToRemove;
-            std::vector<int> idsMarkedToBeRemoved;
-            bool marked;
-            for (size_t i = 0; i < liveObjects.size(); i++) {
-                marked = false;
-                GameObject curI = liveObjects[i];
-                if ( (std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curI.id)) < 1 ) { 
-                    for (size_t j = i+1; j < liveObjects.size(); j++) {
-                        GameObject curJ = liveObjects[j];
-                        if ((std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curJ.id)) < 1) {  
-                            glm::vec3 a = glm::vec3(curI.pos.x, curI.pos.y, curI.pos.z);
-                            float aR = curI.radius;
-                            glm::vec3 b = glm::vec3(curJ.pos.x, curJ.pos.y, curJ.pos.z);
-                            float bR = curJ.radius;
-                            if (colidiuEsferaEsfera(a, aR, b, bR) && typesEliminate(curI.type, curJ.type)) {
-                                idsMarkedToBeRemoved.push_back(curI.id);
-                                idsMarkedToBeRemoved.push_back(curJ.id);
-                                objectsToRemove.push_back(i);
-                                objectsToRemove.push_back(j);
-                                g_Score -= 50;
-                                marked = true;
-                            }
-                        }
-                        if (marked) break;
+            // std::vector<int> objectsToRemove;
+            // std::vector<int> idsMarkedToBeRemoved;
+            // bool marked;
+            // for (size_t i = 0; i < liveObjects.size(); i++) {
+            //     marked = false;
+            //     GameObject curI = liveObjects[i];
+            //     if ( (std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curI.id)) < 1 ) { 
+            //         for (size_t j = i+1; j < liveObjects.size(); j++) {
+            //             GameObject curJ = liveObjects[j];
+            //             if ((std::count(idsMarkedToBeRemoved.begin(), idsMarkedToBeRemoved.end(), curJ.id)) < 1) {  
+            //                 glm::vec3 a = glm::vec3(curI.pos.x, curI.pos.y, curI.pos.z);
+            //                 float aR = curI.radius;
+            //                 glm::vec3 b = glm::vec3(curJ.pos.x, curJ.pos.y, curJ.pos.z);
+            //                 float bR = curJ.radius;
+            //                 if (colidiuEsferaEsfera(a, aR, b, bR) && typesEliminate(curI.type, curJ.type)) {
+            //                     idsMarkedToBeRemoved.push_back(curI.id);
+            //                     idsMarkedToBeRemoved.push_back(curJ.id);
+            //                     objectsToRemove.push_back(i);
+            //                     objectsToRemove.push_back(j);
+            //                     g_Score -= 50;
+            //                     marked = true;
+            //                 }
+            //             }
+            //             if (marked) break;
+            //         }
+            //     }
+            // }
+            // int removeds = 0;
+            // for (int toRem : objectsToRemove) {
+            //     int index = toRem-removeds;
+            //     liveObjects.erase(liveObjects.begin() + index);
+            // }
+
+            //  We check if any virus has hit a cell
+            std::set<int> virusesToRemove;
+            std::set<int> cellsToRemove;
+            for (size_t i = 0; i < liveViruses.size(); i++) {
+                for (size_t j = 0; j < liveCells.size(); j++) {
+                    if (colidiuEsferaEsfera(liveViruses[i].pos, liveViruses[i].radius, liveCells[j].pos, liveCells[j].radius)) {
+                        virusesToRemove.insert(i);
+                        cellsToRemove.insert(j);
+                        g_Score += CELL_DESTROYED_REWARD;
                     }
                 }
             }
-            int removeds = 0;
-            for (int toRem : objectsToRemove) {
-                int index = toRem-removeds;
-                liveObjects.erase(liveObjects.begin() + index);
+            if (virusesToRemove.size() > 0) {
+                std::vector<GameObject> survivorViruses;
+                for (size_t i = 0; i < liveViruses.size(); i++) {
+                    if (virusesToRemove.find(i) == virusesToRemove.end()) {
+                        survivorViruses.push_back(liveViruses[i]);
+                    }
+                }
+                liveViruses = survivorViruses;
+            }
+            if (cellsToRemove.size() > 0) {
+                std::vector<GameObject> survivorCells;
+                for (size_t i = 0; i < liveCells.size(); i++) {
+                    if (cellsToRemove.find(i) == cellsToRemove.end()) {
+                        survivorCells.push_back(liveCells[i]);
+                    }
+                }
+                liveCells = survivorCells;
             }
 
         }
@@ -917,7 +1046,27 @@ int main(int argc, char* argv[])
         }
 
         // We draw live objects
-        for (GameObject &current : liveObjects) {
+        // for (GameObject &current : liveObjects) {
+        //     model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
+        //           * Matrix_Scale(current.scale.x, current.scale.y, current.scale.z)
+        //           * Matrix_Rotate_Z(0.6f)
+        //           * Matrix_Rotate_X(0.2f)
+        //           * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
+        //     glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        //     glUniform1i(object_id_uniform, current.type);
+        //     DrawVirtualObject(current.objectName.c_str());
+        // }
+        for (GameObject &current : liveCells) {
+            model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
+                  * Matrix_Scale(current.scale.x, current.scale.y, current.scale.z)
+                  * Matrix_Rotate_Z(0.6f)
+                  * Matrix_Rotate_X(0.2f)
+                  * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
+            glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+            glUniform1i(object_id_uniform, current.type);
+            DrawVirtualObject(current.objectName.c_str());
+        }
+        for (GameObject &current : liveViruses) {
             model = Matrix_Translate(current.pos.x,current.pos.y,current.pos.z)
                   * Matrix_Scale(current.scale.x, current.scale.y, current.scale.z)
                   * Matrix_Rotate_Z(0.6f)

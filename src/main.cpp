@@ -298,6 +298,10 @@ void TextRendering_ShowScore(GLFWwindow* window, int score);
 int getNextObjectId();
 bool typesEliminate(int typeA, int typeB);
 float generateRandomFloatInRange(float min, float max);
+float constrained(float min, float max, float tentative);
+float validX(float tentative);
+float validY(float tentative);
+float validZ(float tentative);
 
 // Collision functions (move them later to separate file)
 
@@ -490,15 +494,15 @@ int main(int argc, char* argv[])
         newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
         newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
         newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z/3);
-        newObject.bezierP2 = glm::vec3(newX, newY, newZ);
+        newObject.bezierP2 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
         newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
         newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
         newZ += generateRandomFloatInRange(0.0f, 2*MOVEMENT_DELTA_Z/3);
-        newObject.bezierP3 = glm::vec3(newX, newY, newZ);
+        newObject.bezierP3 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
         newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
         newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
         newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z);
-        newObject.bezierP4 = glm::vec3(newX, newY, newZ);
+        newObject.bezierP4 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
         newObject.pos = glm::vec3(newObject.bezierP1.x, newObject.bezierP1.y, newObject.bezierP1.z);
         newObject.bezierT = generateRandomFloatInRange(0.001f, 0.999f);
         // newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
@@ -824,19 +828,19 @@ int main(int argc, char* argv[])
                         float newX = current.bezierP4.x;
                         float newY = current.bezierP4.y;
                         float newZ = current.bezierP4.z;
-                        current.bezierP1 = glm::vec3(newX, newY, newZ);
+                        current.bezierP1 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
                         newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
                         newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
                         newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z/3);
-                        current.bezierP2 = glm::vec3(newX, newY, newZ);
+                        current.bezierP2 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
                         newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
                         newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
                         newZ += generateRandomFloatInRange(0.0f, 2*MOVEMENT_DELTA_Z/3);
-                        current.bezierP3 = glm::vec3(newX, newY, newZ);
+                        current.bezierP3 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
                         newX += generateRandomFloatInRange(-MOVEMENT_DELTA_X, MOVEMENT_DELTA_X);
                         newY += generateRandomFloatInRange(-MOVEMENT_DELTA_Y, MOVEMENT_DELTA_Y);
                         newZ += generateRandomFloatInRange(0.0f, MOVEMENT_DELTA_Z);
-                        current.bezierP4 = glm::vec3(newX, newY, newZ);
+                        current.bezierP4 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
                     }
 
                     float b03 = pow((1.0f - current.bezierT), 3);
@@ -844,9 +848,9 @@ int main(int argc, char* argv[])
                     float b23 = 3*pow(current.bezierT, 2)*(1-current.bezierT);
                     float b33 = pow(current.bezierT, 3);
 
-                    current.pos.x = b03*(current.bezierP1.x) + b13*(current.bezierP2.x) + b23*(current.bezierP3.x) +b33*(current.bezierP4.x);
-                    current.pos.y = b03*(current.bezierP1.y) + b13*(current.bezierP2.y) + b23*(current.bezierP3.y) +b33*(current.bezierP4.y);
-                    current.pos.z = b03*(current.bezierP1.z) + b13*(current.bezierP2.z) + b23*(current.bezierP3.z) +b33*(current.bezierP4.z);
+                    current.pos.x = validX( b03*(current.bezierP1.x) + b13*(current.bezierP2.x) + b23*(current.bezierP3.x) +b33*(current.bezierP4.x) );
+                    current.pos.y = validY( b03*(current.bezierP1.y) + b13*(current.bezierP2.y) + b23*(current.bezierP3.y) +b33*(current.bezierP4.y) );
+                    current.pos.z = validZ( b03*(current.bezierP1.z) + b13*(current.bezierP2.z) + b23*(current.bezierP3.z) +b33*(current.bezierP4.z) );
 
                     current.bezierT += delta_time * TIME_MOVEMENT_SCALING_FACTOR;
 
@@ -2144,3 +2148,24 @@ float generateRandomFloatInRange(float min, float max) {
 
     return n;
 }
+
+float constrained(float min, float max, float tentative) {
+    if (tentative < min) {
+        return min;
+    }
+    if (tentative > max) {
+        return max;
+    }
+    return tentative;
+}
+
+float validX(float tentative) {
+    return constrained(MIN_X, MAX_Z, tentative);
+}
+float validY(float tentative) {
+    return constrained(MIN_Y, MAX_Y, tentative);
+} 
+float validZ(float tentative) {
+    return constrained(MIN_Z, MAX_Z, tentative);
+}
+

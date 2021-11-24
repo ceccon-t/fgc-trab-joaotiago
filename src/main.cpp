@@ -66,7 +66,7 @@
 #define MOVEMENT_STATIC 1
 #define MOVEMENT_LINEAR 2
 #define MOVEMENT_BEZIER 3
-#define TIME_MOVEMENT_SCALING_FACTOR 0.10f
+#define TIME_MOVEMENT_SCALING_FACTOR 0.15f
 #define BULLET_LIFETIME 100
 #define MOVEMENT_DELTA_X 5.0f
 #define MOVEMENT_DELTA_Y 5.0f
@@ -92,6 +92,8 @@
 #define TOTAL_OBJECTS 15
 #define VIRUS_DESTROYED_REWARD 50
 #define CELL_DESTROYED_REWARD -100
+#define PROB_VIRUS_WILL_NOT_SEARCH 0.09f
+#define VIRUS_RADAR_RANGE 20*RADIUS_CORONA
 
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
@@ -187,6 +189,7 @@ struct GameObject {
     int type;   // One of CELL (or SPHERE), VIRUS
     glm::vec3 pos;      // Position of object inside scene space
     glm::vec3 velocity; // For linear movement, movement vector
+    glm::vec3 destination;  // For linear movement, when object is expected to reach a destination
     glm::vec3 scale;    // "Size of object" (not used yet)
     float radius;       // radius of object, used to calculate collisions
     int movementType;   // Defines type of movement, between static, linear and bezier cubic
@@ -949,9 +952,18 @@ int main(int argc, char* argv[])
             // Update position of every virus 
             for (GameObject &current : liveViruses) {
                 if (current.movementType == MOVEMENT_LINEAR) {
-                    current.pos.x += current.velocity.x * 0.01f;
-                    current.pos.y += current.velocity.y * 0.01f;
-                    current.pos.z += current.velocity.z * 0.01f;
+                    // Virus is tracking a target, so we give it an extra boost
+                    current.pos.x += current.velocity.x * (TIME_MOVEMENT_SCALING_FACTOR + 0.02f) * delta_time;
+                    current.pos.y += current.velocity.y * (TIME_MOVEMENT_SCALING_FACTOR + 0.02f) * delta_time;
+                    current.pos.z += current.velocity.z * (TIME_MOVEMENT_SCALING_FACTOR + 0.02f) * delta_time;
+                    if (glm::distance(current.pos, current.destination) < current.radius / 2) {
+                        // We go back to being bezier
+                        current.bezierP4.x = current.pos.x;
+                        current.bezierP4.y = current.pos.y;
+                        current.bezierP4.z = current.pos.z;
+                        current.bezierT = 1.01f;
+                        current.movementType = MOVEMENT_BEZIER;
+                    }
                 } else if (current.movementType == MOVEMENT_BEZIER) {
                     if (current.bezierT >= 1.0f) {
                         current.bezierT = 0.0f;
@@ -979,6 +991,31 @@ int main(int argc, char* argv[])
                         current.bezierP4 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
                     }
 
+                    // Theres a chance that virus will notice a nearby cell and go straight to it
+                    if (generateRandomFloatInRange(0.0f, 1.0f) > PROB_VIRUS_WILL_NOT_SEARCH) {
+
+                        int target = -1;
+                        for (int i = 0; i < liveCells.size(); i++) {
+                            if (glm::distance(current.pos, liveCells[i].pos) <  VIRUS_RADAR_RANGE) {
+                                target = i;
+                                break;
+                            }
+                        }
+                        if (target > -1) {
+
+                            glm::vec3 lineToTarget = liveCells[target].pos - current.pos;
+                            glm::vec4 directionToTarget = glm::vec4(lineToTarget.x, lineToTarget.y, lineToTarget.z, 0.0f);
+                            current.velocity.x = directionToTarget.x;
+                            current.velocity.y = directionToTarget.y;
+                            current.velocity.z = directionToTarget.z;
+                            current.destination.x = liveCells[target].pos.x;
+                            current.destination.y = liveCells[target].pos.y;
+                            current.destination.z = liveCells[target].pos.z;
+                            current.movementType = MOVEMENT_LINEAR;
+                        }
+
+                    }
+
                     float b03 = pow((1.0f - current.bezierT), 3);
                     float b13 = 3*current.bezierT*pow((1-current.bezierT), 2);
                     float b23 = 3*pow(current.bezierT, 2)*(1-current.bezierT);
@@ -998,10 +1035,12 @@ int main(int argc, char* argv[])
             std::set<int> cellsToRemove;
             for (size_t i = 0; i < liveViruses.size(); i++) {
                 for (size_t j = 0; j < liveCells.size(); j++) {
+                    if (cellsToRemove.find(i) != cellsToRemove.end()) continue;
                     if (colidiuEsferaEsfera(liveViruses[i].pos, liveViruses[i].radius, liveCells[j].pos, liveCells[j].radius)) {
                         virusesToRemove.insert(i);
                         cellsToRemove.insert(j);
                         g_Score += CELL_DESTROYED_REWARD;
+                        break;
                     }
                 }
             }

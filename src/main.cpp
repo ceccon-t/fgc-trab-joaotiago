@@ -352,6 +352,9 @@ int main(int argc, char* argv[])
         std::exit(EXIT_FAILURE);
     }
 
+    // We ask to not show the cursor while inside window of the game
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
     // Definimos a função de callback que será chamada sempre que o usuário
     // pressionar alguma tecla do teclado ...
     glfwSetKeyCallback(window, KeyCallback);

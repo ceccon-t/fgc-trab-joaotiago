@@ -299,8 +299,6 @@ int getNextObjectId();
 bool typesEliminate(int typeA, int typeB);
 float generateRandomFloatInRange(float min, float max);
 
-float g_TesteFloat = 0.0f;
-
 // Collision functions (move them later to separate file)
 
 int main(int argc, char* argv[])

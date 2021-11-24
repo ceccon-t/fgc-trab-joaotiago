@@ -409,10 +409,6 @@ int main(int argc, char* argv[])
     ComputeNormals(&spheremodel);
     BuildTrianglesAndAddToVirtualScene(&spheremodel);
 
-    //ObjModel bunnymodel("../../data/bunny.obj");
-    //ComputeNormals(&bunnymodel);
-    //BuildTrianglesAndAddToVirtualScene(&bunnymodel);
-
     ObjModel planemodel("../../data/ground.obj");
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
@@ -464,18 +460,9 @@ int main(int argc, char* argv[])
     float a_third_of_z = (MAX_Z + MIN_Z) / 3;
 
     // Initial position
-    // float initial_cam_x = MAX_X/2;
-    // float initial_cam_y = MAX_Y/2;
-    // float initial_cam_z = -MAX_Z/3;
     float initial_cam_x = 9.0f;
     float initial_cam_y = 9.0f;
     float initial_cam_z = -9.0f;
-    // float initial_player_x = initial_cam_x;
-    // float initial_player_y = initial_cam_y - 1.0f;
-    // float initial_player_z = initial_cam_z - 1.5f;
-    // float initial_player_x = initial_cam_x + PLAYER_CAM_OFFSET_X;
-    // float initial_player_y = initial_cam_y + PLAYER_CAM_OFFSET_Y;
-    // float initial_player_z = initial_cam_z + PLAYER_CAM_OFFSET_Z;
     float initial_player_x = initial_cam_x;
     float initial_player_y = initial_cam_y;
     float initial_player_z = initial_cam_z;
@@ -504,17 +491,11 @@ int main(int argc, char* argv[])
     for (int i = 0; i < TOTAL_OBJECTS; i++) {
         GameObject newObject;
         newObject.id = getNextObjectId();
-        // newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
-        // newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-        // newObject.movementType = MOVEMENT_LINEAR;
-        // newObject.pos = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
-        // newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
         newObject.movementType = MOVEMENT_BEZIER;
         float newX = generateRandomFloatInRange(MIN_X, MAX_X);
         float newY = generateRandomFloatInRange(MIN_Y, MAX_Y);
         float newZ = MIN_Z+3.0f;
-        // newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
-        if ((liveViruses.size() > MINIMUM_ENEMIES) && generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
+        if ((liveViruses.size() > MINIMUM_ENEMIES) && generateRandomSmallFloat() > 0.0f) {
             newObject.objectName = "cell";
             newObject.type = CELL;
             newObject.radius = RADIUS_CELL;
@@ -605,7 +586,6 @@ int main(int argc, char* argv[])
         // Veja slides 195-227 e 229-234 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
         glm::vec4 camera_lookat_l    = glm::vec4(player.pos.x,player.pos.y,player.pos.z,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
         glm::vec4 camera_position_c_lookAt  = glm::vec4(x_lookAt+camera_lookat_l.x,y_lookAt+camera_lookat_l.y,z_lookAt+camera_lookat_l.z,1.0f); // Ponto "c", centro da câmera
-        // glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
         glm::vec4 camera_view_vector_lookAt = camera_lookat_l - camera_position_c_lookAt; // Vetor "view", sentido para onde a câmera está virada
         glm::vec4 camera_up_vector_lookAt   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
 
@@ -614,7 +594,6 @@ int main(int argc, char* argv[])
         float x_freeCam = r_freeCam*cos(g_CameraPhi_freeCam)*sin(g_CameraTheta_freeCam);
         float y_freeCam = r_freeCam*sin(g_CameraPhi_freeCam);
         float z_freeCam = r_freeCam*cos(g_CameraPhi_freeCam)*cos(g_CameraTheta_freeCam);
-        // Free cam
         glm::vec4 camera_view_vector_freeCam = glm::vec4(x_freeCam, y_freeCam, z_freeCam, 0.0f);
         glm::vec4 camera_up_vector_freeCam = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
         glm::vec4 camera_w_vector = (-camera_view_vector_freeCam) / norm(camera_view_vector_freeCam);
@@ -763,26 +742,6 @@ int main(int argc, char* argv[])
         glUniform1i(object_id_uniform, PLANE);
         DrawVirtualObject("wall");
         
-        // // // We create the Aircraft
-        // model = Matrix_Translate(0.0f,10.0f,0.0f)
-        // 		* Matrix_Scale(5.f, 5.0f, 5.0f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, AIRCRAFT);
-        // DrawVirtualObject("aircraft");
-        // // We create the virus example
-        // model = Matrix_Translate(0.0f,10.0f,30.0f)
-        // 		* Matrix_Scale(0.5f, 0.5f, 0.5f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, VIRUS);
-        // DrawVirtualObject("corona");
-        
-        // // We create the cell example
-        // model = Matrix_Translate(0.0f,10.0f,-27.0f)
-        // 		* Matrix_Scale(10.f, 10.0f, 10.0f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, CELL);
-        // DrawVirtualObject("cell");
-        
         // MOVEMENT AND GAME LOGIC START
         if (!g_Paused) {
 
@@ -929,7 +888,6 @@ int main(int argc, char* argv[])
 
             // Update position of every cell 
             std::set<int> cellsGoneAway;
-            // for (GameObject &current : liveCells) {
             for (int i = 0; i < liveCells.size(); i++) {
                 GameObject &current = liveCells[i];
                 if (current.movementType == MOVEMENT_LINEAR) {
@@ -942,7 +900,6 @@ int main(int argc, char* argv[])
 
                         if (current.bezierP4.z > (MAX_Z - 1.5 * MOVEMENT_DELTA_Z)) {
                             // We remove object from game
-                            // current.bezierP4 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
                             cellsGoneAway.insert(i);
                         } else {
                             float newX = current.bezierP4.x;
@@ -1008,7 +965,7 @@ int main(int argc, char* argv[])
                         current.bezierT = 0.0f;
 
                         if (current.bezierP4.z < (MIN_Z + 1.5 * MOVEMENT_DELTA_Z)) {
-                            // We move object back to start of scene
+                            // If virus reached end of room, we move it back to the start
                             current.bezierP4 = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MAX_Z-3.0f);
                         }
 
@@ -1030,7 +987,7 @@ int main(int argc, char* argv[])
                         current.bezierP4 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
                     }
 
-                    // Theres a chance that virus will notice a nearby cell and go straight to it
+                    // Theres a chance that virus will notice a nearby cell and go straight for it
                     if (generateRandomFloatInRange(0.0f, 1.0f) > PROB_VIRUS_WILL_NOT_SEARCH) {
 
                         int target = -1;
@@ -1142,73 +1099,15 @@ int main(int argc, char* argv[])
         }
         // MOVEMENT AND GAME LOGIC END
 
-        // Not drawing player yet as we need to fix the rotation
-        // We draw the Player
-        // Testing player pos
-        // player.pos.x = initial_cam_x;
-        // player.pos.y = initial_cam_y;
-        // player.pos.z = initial_cam_z+0.5f;
-        // // Positioning Sphere (0, 0, 0)
-        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y-player.halfFace,player.pos.z-player.halfFace)
-        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-        // // Positioning Sphere (MAX, 0, 0)
-        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y-player.halfFace,player.pos.z-player.halfFace)
-        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-        // // Positioning Sphere (MAX, MAX, 0)
-        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y+player.halfFace,player.pos.z-player.halfFace)
-        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-        // // Positioning Sphere (0, MAX, 0)
-        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y+player.halfFace,player.pos.z-player.halfFace)
-        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-        // // Positioning Sphere (0, 0, MAX)
-        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y-player.halfFace,player.pos.z+player.halfFace)
-        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-        // // Positioning Sphere (MAX, 0,  MAX)
-        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y-player.halfFace,player.pos.z+player.halfFace)
-        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-        // // Positioning Sphere (MAX, MAX, MAX)
-        // model = Matrix_Translate(player.pos.x+player.halfFace,player.pos.y+player.halfFace,player.pos.z+player.halfFace)
-        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-        // // Positioning Sphere (0, MAX, MAX)
-        // model = Matrix_Translate(player.pos.x-player.halfFace,player.pos.y+player.halfFace,player.pos.z+player.halfFace)
-        //       * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(object_id_uniform, SPHERE);
-        // DrawVirtualObject("sphere");
-        // End testing player pos
         if (g_CamType == CAMERA_TYPE_LOOKAT) {
+            // If using camera type look-at, we draw the player
             model = Matrix_Translate(player.pos.x + PLAYER_CAM_OFFSET_X,player.pos.y + PLAYER_CAM_OFFSET_Y,player.pos.z + PLAYER_CAM_OFFSET_Z)
-                    // * Matrix_Rotate_Z(z_freeCam)
                     * Matrix_Scale(player.scale.x, player.scale.y, player.scale.z)
-                    // * Matrix_Rotate_Z(-g_CameraPhi_freeCam)
-                    // * Matrix_Rotate_X(-g_CameraPhi_freeCam)
                     * Matrix_Rotate_Y(M_PI + g_CameraTheta_freeCam)
                     ;
             glUniformMatrix4fv(model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
             glUniform1i(object_id_uniform, AIRCRAFT);
             DrawVirtualObject(player.objectName.c_str());
-
         }
 
         // We draw bullets

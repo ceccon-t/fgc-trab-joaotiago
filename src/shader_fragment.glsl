@@ -92,6 +92,7 @@ void main()
 
     if ( object_id == VIRUS )
     {
+    	//Lambert
         U = texcoords.x;
         V = texcoords.y;
         Ka = vec3(0.04,0.2,0.2);
@@ -102,8 +103,8 @@ void main()
         color = pow(color, vec3(1.0,1.0,1.0)/2.2);
     }
     else if ( object_id == SPHERE )
-    {
-
+    {	
+    	//lambert
         vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
         float theta = atan(position_model.x, position_model.z);
         float phi = asin(position_model.y / length(bbox_center - position_model));
@@ -117,10 +118,11 @@ void main()
         color = pow(color, vec3(1.0,1.0,1.0)/2.2);
     }
     else if ( object_id == CELL )
-    {
+    {	
+    	//Lambert
         U = texcoords.x;
         V = texcoords.y;
-        Ka = vec3(0.2,0.2,0.04);
+        Ka = vec3(0.2,0.2,0.04); 
         vec3 Kd = texture(TextureImage3, vec2(U,V)).rgb;
         vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
         vec3 ambient_term = Ka*Ia; 
@@ -129,6 +131,7 @@ void main()
     }
     else if ( object_id == PLANE )
     {
+    	//blinn-phong
         U = texcoords.x;
         V = texcoords.y;
         vec3 Kd = texture(TextureImage1, vec2(U,V)).rgb;
@@ -146,11 +149,12 @@ void main()
     }
     else if ( object_id == AIRCRAFT )
     {
+    	//blinn-phong
         U = texcoords.x;
         V = texcoords.y;
         vec3 Kd = texture(TextureImage2, vec2(U,V)).rgb;
         Ks = vec3(0.8,0.8,0.8); 		 //refletancia especular da superf
-        Ka = vec3(0.5,0.5,0.5);		//refletancia ambiente da superf
+        Ka = vec3(0.5,0.5,0.5);			//refletancia ambiente da superf
         q = 15.0;
         vec4 sum = v+l;
         vec4 h = (sum) / sqrt(pow(sum.x,2)+pow(sum.y,2)+pow(sum.z,2));

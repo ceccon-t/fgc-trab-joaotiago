@@ -404,13 +404,13 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/cell.jpg"); // TextureImage3
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
-    ObjModel spheremodel("../../data/sphere.obj");
-    ComputeNormals(&spheremodel);
-    BuildTrianglesAndAddToVirtualScene(&spheremodel);
+    //ObjModel spheremodel("../../data/sphere.obj");
+    //ComputeNormals(&spheremodel);
+    //BuildTrianglesAndAddToVirtualScene(&spheremodel);
 
-    ObjModel bunnymodel("../../data/bunny.obj");
-    ComputeNormals(&bunnymodel);
-    BuildTrianglesAndAddToVirtualScene(&bunnymodel);
+    //ObjModel bunnymodel("../../data/bunny.obj");
+    //ComputeNormals(&bunnymodel);
+    //BuildTrianglesAndAddToVirtualScene(&bunnymodel);
 
     ObjModel planemodel("../../data/ground.obj");
     ComputeNormals(&planemodel);

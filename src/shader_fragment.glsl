@@ -78,7 +78,7 @@ void main()
     // Coordenadas de textura U e V
     float U = 0.0;
     float V = 0.0;
-    //
+    
     vec3 I = vec3(1,1,1); // espectro da fonte de luz
     vec3 Ia = vec3(0.15,0.15,0.15); //  espectro da luz ambiente
     
@@ -130,7 +130,7 @@ void main()
         V = texcoords.y;
         vec3 Kd = texture(TextureImage2, vec2(U,V)).rgb;
         Ks = vec3(0.8,0.8,0.8); 		 //refletancia especular da superf
-        Ka = vec3(0.2,0.2,0.2);		//refletancia ambiente da superf
+        Ka = vec3(0.5,0.5,0.5);		//refletancia ambiente da superf
         q = 15.0;
         vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
         vec3 ambient_term = Ka*Ia;

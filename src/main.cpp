@@ -66,7 +66,7 @@
 #define MOVEMENT_STATIC 1
 #define MOVEMENT_LINEAR 2
 #define MOVEMENT_BEZIER 3
-#define TIME_MOVEMENT_SCALING_FACTOR 0.15f
+#define TIME_MOVEMENT_SCALING_FACTOR 0.25f
 #define BULLET_LIFETIME 100
 #define MOVEMENT_DELTA_X 5.0f
 #define MOVEMENT_DELTA_Y 5.0f
@@ -969,9 +969,9 @@ int main(int argc, char* argv[])
             for (GameObject &current : liveViruses) {
                 if (current.movementType == MOVEMENT_LINEAR) {
                     // Virus is tracking a target, so we give it an extra boost
-                    current.pos.x += current.velocity.x * (TIME_MOVEMENT_SCALING_FACTOR + 0.02f) * delta_time;
-                    current.pos.y += current.velocity.y * (TIME_MOVEMENT_SCALING_FACTOR + 0.02f) * delta_time;
-                    current.pos.z += current.velocity.z * (TIME_MOVEMENT_SCALING_FACTOR + 0.02f) * delta_time;
+                    current.pos.x += current.velocity.x * (TIME_MOVEMENT_SCALING_FACTOR * 1.5 /*+ 0.04f*/) * delta_time;
+                    current.pos.y += current.velocity.y * (TIME_MOVEMENT_SCALING_FACTOR * 1.5 /*+ 0.04f*/) * delta_time;
+                    current.pos.z += current.velocity.z * (TIME_MOVEMENT_SCALING_FACTOR * 1.5 /*+ 0.04f*/) * delta_time;
                     if (glm::distance(current.pos, current.destination) < current.radius / 2) {
                         // We go back to being bezier
                         current.bezierP4.x = current.pos.x;

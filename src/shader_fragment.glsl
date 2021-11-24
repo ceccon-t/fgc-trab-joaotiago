@@ -98,6 +98,22 @@ void main()
         color = lambert_diffuse_term + ambient_term;
         color = pow(color, vec3(1.0,1.0,1.0)/2.2);
     }
+    else if ( object_id == SPHERE )
+    {
+
+        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
+        float theta = atan(position_model.x, position_model.z);
+        float phi = asin(position_model.y / length(bbox_center - position_model));
+
+        U = (theta + M_PI) / (2 * M_PI);
+        V = (phi + M_PI_2) / M_PI;
+        Ka = vec3(0.2,0.2,0.04);
+   		vec3 Kd = texture(TextureImage2, vec2(U,V)).rgb;
+        vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
+        vec3 ambient_term = Ka*Ia; 
+        color = lambert_diffuse_term + ambient_term;
+        color = pow(color, vec3(1.0,1.0,1.0)/2.2);
+    }
     else if ( object_id == CELL )
     {
         U = texcoords.x;
@@ -117,6 +133,7 @@ void main()
         Ks = vec3(0.8,0.8,0.8); 	 //refletancia especular da superf
         Ka = vec3(0.2,0.2,0.2);  	//refletancia ambiente da superf
         q = 15.0;
+        //h = 
         vec3 lambert_diffuse_term = Kd*I*max(0,dot(n,l));
         vec3 ambient_term = Ka*Ia;
         vec3 phong_specular_term = Ks*I*pow(max(0,dot(r,v)),q)*max(0,dot(n,l)); 

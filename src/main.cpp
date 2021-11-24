@@ -403,10 +403,10 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/aircraft.jpg"); // TextureImage2
     LoadTextureImage("../../data/cell.jpg"); // TextureImage3
 
-    // Construímos a representação de objetos geométricos através de malhas de triângulos
-    //ObjModel spheremodel("../../data/sphere.obj");
-    //ComputeNormals(&spheremodel);
-    //BuildTrianglesAndAddToVirtualScene(&spheremodel);
+    //Construímos a representação de objetos geométricos através de malhas de triângulos
+    ObjModel spheremodel("../../data/sphere.obj");
+    ComputeNormals(&spheremodel);
+    BuildTrianglesAndAddToVirtualScene(&spheremodel);
 
     //ObjModel bunnymodel("../../data/bunny.obj");
     //ComputeNormals(&bunnymodel);

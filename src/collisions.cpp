@@ -1,15 +1,15 @@
 #include "collisions.h"
 
-bool colidiuEsferaEsfera(glm::vec3 &posA, float radiusA, glm::vec3 &posB, float radiusB) {
-    bool colidiu = false;
+bool collidedSphereSphere(glm::vec3 &posA, float radiusA, glm::vec3 &posB, float radiusB) {
+    bool collided = false;
 
     float dist = glm::distance(posA, posB);
 
     if (dist < (radiusA + radiusB)) {
-        colidiu = true;
+        collided = true;
     }
 
-    return colidiu;
+    return collided;
 }
 
 bool collidedPointSphere(glm::vec3 &posSphere, float radiusSphere, glm::vec3 &posPoint) {

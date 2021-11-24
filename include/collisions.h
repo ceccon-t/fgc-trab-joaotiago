@@ -7,7 +7,7 @@
 #include <glm/vec4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-bool colidiuEsferaEsfera(glm::vec3 &posA, float radiusA, glm::vec3 &posB, float radiusB);
+bool collidedSphereSphere(glm::vec3 &posA, float radiusA, glm::vec3 &posB, float radiusB);
 
 bool collidedPointSphere(glm::vec3 &posSphere, float radiusSphere, glm::vec3 &posPoint);
 

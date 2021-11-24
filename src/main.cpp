@@ -1075,7 +1075,7 @@ int main(int argc, char* argv[])
             for (size_t i = 0; i < liveViruses.size(); i++) {
                 for (size_t j = 0; j < liveCells.size(); j++) {
                     if (cellsToRemove.find(i) != cellsToRemove.end()) continue;
-                    if (colidiuEsferaEsfera(liveViruses[i].pos, liveViruses[i].radius, liveCells[j].pos, liveCells[j].radius)) {
+                    if (collidedSphereSphere(liveViruses[i].pos, liveViruses[i].radius, liveCells[j].pos, liveCells[j].radius)) {
                         virusesToRemove.insert(i);
                         cellsToRemove.insert(j);
                         g_Score += CELL_DESTROYED_REWARD;

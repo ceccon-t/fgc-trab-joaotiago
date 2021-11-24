@@ -77,8 +77,10 @@
 #define CAMERA_TYPE_FREECAM 2
 
 // Proportions and limits
-#define SCALE_CORONA 0.025f
-#define SCALE_CELL 0.7f
+#define SCALE_CORONA 0.05f
+#define RADIUS_CORONA 1.8f
+#define SCALE_CELL 1.4f
+#define RADIUS_CELL 1.8f
 #define MIN_X -100.0f
 #define MAX_X 100.0f
 #define MIN_Y 0.0f
@@ -485,7 +487,6 @@ int main(int argc, char* argv[])
         newObject.id = getNextObjectId();
         // newObject.pos = glm::vec3(generateRandomSmallFloat()*10, generateRandomSmallFloat()*10, generateRandomSmallFloat()*10);
         // newObject.velocity = glm::vec3(generateRandomSmallFloat(), generateRandomSmallFloat(), generateRandomSmallFloat());
-        newObject.radius = 0.9f;
         // newObject.movementType = MOVEMENT_LINEAR;
         // newObject.pos = glm::vec3(generateRandomFloatInRange(MIN_X, MAX_X), generateRandomFloatInRange(MIN_Y, MAX_Y), MIN_Z+3.0f);
         // newObject.velocity = glm::vec3(0.1f, 0.1f, 0.5f);
@@ -497,6 +498,7 @@ int main(int argc, char* argv[])
         if (generateRandomSmallFloat() > 0.0f) {   // should be roughly 50-50, I hope
             newObject.objectName = "cell";
             newObject.type = CELL;
+            newObject.radius = RADIUS_CELL;
             newObject.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
 
             // Cells start near z = 0 and move upwards in z
@@ -520,6 +522,7 @@ int main(int argc, char* argv[])
         } else {
             newObject.objectName = "corona";
             newObject.type = VIRUS;
+            newObject.radius = RADIUS_CORONA;
             newObject.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
 
             // Viruses start near z = MAX_Z and move downwards in z
@@ -543,7 +546,6 @@ int main(int argc, char* argv[])
             liveViruses.push_back(newObject);
         }
     }
-
 
     // Ficamos em loop, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
@@ -761,7 +763,6 @@ int main(int argc, char* argv[])
             if (currentObjects < TOTAL_OBJECTS) {  
                 GameObject newObject;
                 newObject.id = getNextObjectId();
-                newObject.radius = 0.9f;
                 newObject.movementType = MOVEMENT_BEZIER;
                 float newX = generateRandomFloatInRange(MIN_X, MAX_X);
                 float newY = generateRandomFloatInRange(MIN_Y, MAX_Y);
@@ -769,6 +770,7 @@ int main(int argc, char* argv[])
                 if (generateRandomSmallFloat() > 0.0f) {
                     newObject.objectName = "cell";
                     newObject.type = CELL;
+                    newObject.radius = RADIUS_CELL;
                     newObject.scale = glm::vec3(SCALE_CELL, SCALE_CELL, SCALE_CELL);
 
                     // Cells start near z = 0 and move upwards in z
@@ -792,6 +794,7 @@ int main(int argc, char* argv[])
                 } else {
                     newObject.objectName = "corona";
                     newObject.type = VIRUS;
+                    newObject.radius = RADIUS_CORONA;
                     newObject.scale = glm::vec3(SCALE_CORONA, SCALE_CORONA, SCALE_CORONA);
 
                     // Viruses start near z = MAX_Z and move downwards in z
@@ -811,7 +814,7 @@ int main(int argc, char* argv[])
                     newObject.bezierP4 = glm::vec3(validX(newX), validY(newY), validZ(newZ));
                     newObject.pos = glm::vec3(newObject.bezierP1.x, newObject.bezierP1.y, newObject.bezierP1.z);
                     newObject.bezierT = generateRandomFloatInRange(0.001f, 0.199f);
-                    
+
                     liveViruses.push_back(newObject);
                 }
             }
